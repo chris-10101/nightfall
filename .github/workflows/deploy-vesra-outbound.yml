@@ -65,6 +65,7 @@ jobs:
             fi
             cp deploy/systemd/vesra-*.service /etc/systemd/system/
             cp deploy/systemd/vesra-*.timer /etc/systemd/system/
+            rm -rf /opt/nightfall/automations/vesra-outbound
             systemctl daemon-reload
             systemctl enable vesra-outbound-webhook.service vesra-daily-discovery.timer vesra-daily-enrichment.timer vesra-daily-orchestrator.timer vesra-agent-send-approved.timer
             set -a
