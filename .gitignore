@@ -15,6 +15,7 @@ venv/
 **/lead-gen/data/archive/
 **/lead-gen/outreach/batches/*.csv
 **/lead-gen/outreach/archive/
+**/lead-gen/reports/
 **/lead-gen/config/outbound_config.json
 **/lead-gen/config/test_campaign_config.json
 **/lead-gen/tests/test_campaign_state.csv
