@@ -193,7 +193,15 @@ def decision(
         )
 
     if not queue_row:
-        return state("qualified", "build_campaign_queue", decision_at, "Eligible for queue build.", "", "false", run_id)
+        return state(
+            "qualified",
+            "await_queue_selection",
+            decision_at,
+            "Eligible but not selected into the current deduped campaign queue.",
+            "",
+            "false",
+            run_id,
+        )
 
     campaign_status = (queue_row.get("campaign_status") or "").strip().lower()
     if campaign_status in STOP_QUEUE_STATUSES:
