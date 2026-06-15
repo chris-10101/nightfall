@@ -1,0 +1,72 @@
+name: Deploy Vesra Outbound
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-vesra-outbound.yml"
+      - "automations/vesra-outbound/**"
+
+  workflow_dispatch:
+
+concurrency:
+  group: vesra-outbound-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Run local checks
+        working-directory: automations/vesra-outbound
+        run: |
+          python3 --version
+          python3 lead-gen/tests/test_unsubscribe_flow.py
+          python3 -m compileall -q lead-gen/scripts lead-gen/tests
+          python3 lead-gen/scripts/maintenance/validate_icp_profiles.py
+
+      - name: Configure SSH
+        env:
+          DROPLET_HOST: ${{ secrets.VESRA_DROPLET_HOST }}
+          DROPLET_SSH_KEY: ${{ secrets.VESRA_DROPLET_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DROPLET_SSH_KEY" > ~/.ssh/nightfall_deploy
+          chmod 600 ~/.ssh/nightfall_deploy
+          ssh-keyscan -H "$DROPLET_HOST" >> ~/.ssh/known_hosts
+
+      - name: Sync code to droplet
+        env:
+          DROPLET_HOST: ${{ secrets.VESRA_DROPLET_HOST }}
+          DROPLET_USER: ${{ secrets.VESRA_DROPLET_USER }}
+        run: |
+          rsync -az --delete \
+            --exclude '__pycache__/' \
+            --exclude '*.pyc' \
+            -e 'ssh -i ~/.ssh/nightfall_deploy -o IdentitiesOnly=yes' \
+            ./ "$DROPLET_USER@$DROPLET_HOST:/opt/nightfall/"
+
+      - name: Verify and restart webhook
+        env:
+          DROPLET_HOST: ${{ secrets.VESRA_DROPLET_HOST }}
+          DROPLET_USER: ${{ secrets.VESRA_DROPLET_USER }}
+        run: |
+          ssh -i ~/.ssh/nightfall_deploy -o IdentitiesOnly=yes "$DROPLET_USER@$DROPLET_HOST" '
+            set -e
+            cd /opt/nightfall/automations/vesra-outbound
+            set -a
+            . /etc/vesra/outbound.env
+            set +a
+            python3 lead-gen/tests/test_unsubscribe_flow.py
+            python3 -m compileall -q lead-gen/scripts lead-gen/tests
+            python3 lead-gen/scripts/maintenance/validate_icp_profiles.py
+            systemctl restart vesra-outbound-webhook.service
+            sleep 1
+            systemctl is-active vesra-outbound-webhook.service
+            curl -fsS http://127.0.0.1:8088/health
+          '
