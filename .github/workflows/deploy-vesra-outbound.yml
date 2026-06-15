@@ -32,8 +32,8 @@ jobs:
 
       - name: Configure SSH
         env:
-          DROPLET_HOST: ${{ secrets.VESRA_DROPLET_HOST }}
-          DROPLET_SSH_KEY: ${{ secrets.VESRA_DROPLET_SSH_KEY }}
+          DROPLET_HOST: ${{ secrets.NIGHTFALL_DROPLET_HOST }}
+          DROPLET_SSH_KEY: ${{ secrets.NIGHTFALL_DROPLET_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "$DROPLET_SSH_KEY" > ~/.ssh/nightfall_deploy
@@ -42,8 +42,8 @@ jobs:
 
       - name: Sync code to droplet
         env:
-          DROPLET_HOST: ${{ secrets.VESRA_DROPLET_HOST }}
-          DROPLET_USER: ${{ secrets.VESRA_DROPLET_USER }}
+          DROPLET_HOST: ${{ secrets.NIGHTFALL_DROPLET_HOST }}
+          DROPLET_USER: ${{ secrets.NIGHTFALL_DROPLET_USER }}
         run: |
           rsync -az --delete \
             --exclude '__pycache__/' \
@@ -53,8 +53,8 @@ jobs:
 
       - name: Verify and restart webhook
         env:
-          DROPLET_HOST: ${{ secrets.VESRA_DROPLET_HOST }}
-          DROPLET_USER: ${{ secrets.VESRA_DROPLET_USER }}
+          DROPLET_HOST: ${{ secrets.NIGHTFALL_DROPLET_HOST }}
+          DROPLET_USER: ${{ secrets.NIGHTFALL_DROPLET_USER }}
         run: |
           ssh -i ~/.ssh/nightfall_deploy -o IdentitiesOnly=yes "$DROPLET_USER@$DROPLET_HOST" '
             set -e
