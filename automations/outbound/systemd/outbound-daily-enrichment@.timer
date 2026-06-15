@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Nightfall outbound enrichment for tenant %i every UK weekday
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 08:45:00 Europe/London
+Persistent=true
+RandomizedDelaySec=10m
+Unit=outbound-daily-enrichment@%i.service
+
+[Install]
+WantedBy=timers.target

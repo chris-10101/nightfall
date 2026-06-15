@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Nightfall outbound approved sender for tenant %i every UK weekday
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 10:15:00 Europe/London
+Persistent=true
+RandomizedDelaySec=10m
+Unit=outbound-agent-send-approved@%i.service
+
+[Install]
+WantedBy=timers.target

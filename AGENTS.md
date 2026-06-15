@@ -2,6 +2,26 @@
 
 This repository contains reusable automation systems. Keep project-specific runtime data, secrets, and generated files out of Git.
 
+## Outbound Structure
+
+Canonical reusable outbound structure:
+
+```text
+automations/outbound/
+  core/
+  tools/
+  systemd/
+  tenants/
+```
+
+Use `automations/outbound/tenants/<tenant_id>/` for new businesses and
+`automations/outbound/tenants/<tenant_id>/campaigns/<campaign_id>/` for new
+ICPs/campaigns.
+
+Vesra production still runs through `automations/vesra-outbound/` as a
+compatibility implementation. Do not remove or rename that path until the DO
+systemd units and webhook service have been explicitly migrated.
+
 ## Vesra Outbound Deployment
 
 The Vesra outbound automation lives at:
@@ -30,6 +50,7 @@ It runs automatically when changes are pushed to `main` under:
 
 ```text
 .github/workflows/deploy-vesra-outbound.yml
+automations/outbound/**
 automations/vesra-outbound/**
 ```
 
@@ -61,6 +82,12 @@ So the deployed Vesra code path is:
 
 ```text
 /opt/nightfall/automations/vesra-outbound
+```
+
+The deployed reusable outbound path is:
+
+```text
+/opt/nightfall/automations/outbound
 ```
 
 ### Production Runtime Files

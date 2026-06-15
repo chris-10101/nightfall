@@ -1,0 +1,76 @@
+{
+  "tools": [
+    {
+      "name": "discover_icp_contacts",
+      "description": "Discover new email-backed prospects for active ICP profiles.",
+      "command": ["python3", "lead-gen/scripts/discovery/discover_email_backed_icp.py"],
+      "mutates_state": true,
+      "requires_review": false,
+      "can_send_email": false,
+      "allowed_args": ["--profile", "--max-new", "--max-pages", "--checkpoint"]
+    },
+    {
+      "name": "enrich_public_web",
+      "description": "Fetch public company pages to enrich missing emails and evidence.",
+      "command": ["python3", "lead-gen/scripts/enrichment/enrich_public_web.py"],
+      "mutates_state": true,
+      "requires_review": false,
+      "can_send_email": false,
+      "allowed_args": ["--limit", "--max-pages", "--only-missing-email", "--checkpoint"]
+    },
+    {
+      "name": "enrich_decision_maker",
+      "description": "Apply deterministic decision-maker enrichment.",
+      "command": ["python3", "lead-gen/scripts/enrichment/enrich_decision_makers.py"],
+      "mutates_state": true,
+      "requires_review": false,
+      "can_send_email": false,
+      "allowed_args": []
+    },
+    {
+      "name": "qualify_and_queue",
+      "description": "Rebuild campaign_queue.csv using eligibility rules.",
+      "command": ["python3", "lead-gen/scripts/outreach/build_campaign_queue.py"],
+      "mutates_state": true,
+      "requires_review": false,
+      "can_send_email": false,
+      "allowed_args": []
+    },
+    {
+      "name": "retrieve_kb_context",
+      "description": "Retrieve relevant Vesra KB snippets for copy or reply drafting.",
+      "command": ["python3", "lead-gen/scripts/kb/retrieve_kb.py"],
+      "mutates_state": false,
+      "requires_review": false,
+      "can_send_email": false,
+      "allowed_args": ["--query", "--limit"]
+    },
+    {
+      "name": "prepare_review_batch",
+      "description": "Prepare a CSV batch for human review.",
+      "command": ["python3", "lead-gen/scripts/outreach/prepare_outreach_batch.py"],
+      "mutates_state": true,
+      "requires_review": true,
+      "can_send_email": false,
+      "allowed_args": ["--limit", "--tier", "--per-domain-limit", "--output"]
+    },
+    {
+      "name": "send_approved_campaign",
+      "description": "Send only queue rows explicitly approved for automated sending.",
+      "command": ["python3", "lead-gen/scripts/outreach/send_agent_approved.py"],
+      "mutates_state": true,
+      "requires_review": true,
+      "can_send_email": true,
+      "allowed_args": ["--limit", "--send"]
+    },
+    {
+      "name": "run_lifecycle_orchestrator",
+      "description": "Plan lifecycle state and next actions for all contacts.",
+      "command": ["python3", "lead-gen/scripts/orchestration/run_daily_orchestrator.py"],
+      "mutates_state": true,
+      "requires_review": false,
+      "can_send_email": false,
+      "allowed_args": ["--rebuild-queue", "--summary"]
+    }
+  ]
+}

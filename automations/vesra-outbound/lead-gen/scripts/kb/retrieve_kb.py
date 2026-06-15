@@ -38,7 +38,7 @@ def score(query_terms: Counter, text: str) -> int:
     return sum(min(count, terms.get(term, 0)) for term, count in query_terms.items())
 
 
-def retrieve(query: str, limit: int) -> list[dict[str, str | int]]:
+def retrieve(query: str, limit: int) -> list[dict]:
     root = kb_dir()
     query_terms = Counter(tokenize(query))
     results = []

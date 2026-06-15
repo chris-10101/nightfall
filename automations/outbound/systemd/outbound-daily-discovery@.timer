@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Nightfall outbound discovery for tenant %i every UK weekday
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 07:30:00 Europe/London
+Persistent=true
+RandomizedDelaySec=10m
+Unit=outbound-daily-discovery@%i.service
+
+[Install]
+WantedBy=timers.target

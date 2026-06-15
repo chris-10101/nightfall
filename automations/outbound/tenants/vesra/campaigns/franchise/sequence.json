@@ -1,0 +1,24 @@
+{
+  "campaign_name": "vesra_franchise_v1",
+  "subject": "Quick question",
+  "day_1": {
+    "subject": "Quick question",
+    "short_reason": "your franchise network",
+    "detail": "appears to run or support a franchise network with multiple locations",
+    "body_template": "Hi {first_name},\n\nI came across {company_name} and noticed you operate or support a franchise network.\n\nAs franchise networks grow, it often becomes harder for head office to keep visibility and consistency across holiday management, sickness tracking, employee records, policy acknowledgements, onboarding, and compliance.\n\nVesra helps franchise networks give head office a clearer, more consistent HR platform across locations without having to build or maintain software themselves.\n\nThe result is better operational control, lower admin burden, reduced compliance risk, and a more consistent employee experience across the network.\n\nWould it be worth sending over a short overview?\n\nBest,\nChris"
+  },
+  "follow_ups": [
+    {
+      "day": 4,
+      "subject": "Re: Quick question"
+    },
+    {
+      "day": 7,
+      "subject": "Helping HR consultancies grow recurring revenue"
+    },
+    {
+      "day": 14,
+      "subject": "Should I close your file"
+    }
+  ]
+}

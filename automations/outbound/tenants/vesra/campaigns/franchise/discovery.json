@@ -1,0 +1,46 @@
+{
+  "countries": [
+    "UK",
+    "England"
+  ],
+  "regions": [
+    "Yorkshire",
+    "North West England",
+    "North East England",
+    "East Midlands",
+    "West Midlands",
+    "South East England",
+    "South West England"
+  ],
+  "cities": [
+    "London",
+    "Manchester",
+    "Leeds",
+    "Birmingham",
+    "Liverpool",
+    "Sheffield",
+    "Newcastle",
+    "Nottingham",
+    "Bristol"
+  ],
+  "verticals": [
+    "home care",
+    "children's activities",
+    "kids activities",
+    "estate agency",
+    "trades",
+    "cleaning",
+    "hospitality",
+    "fitness",
+    "education",
+    "food"
+  ],
+  "query_templates": [
+    "\"{vertical}\" \"franchise network\" \"{geo}\"",
+    "\"{vertical}\" \"franchisor\" \"{geo}\"",
+    "\"{vertical}\" \"franchise opportunities\" \"{geo}\"",
+    "\"franchise network\" \"head office\" \"{geo}\"",
+    "\"franchisees\" \"head office\" \"{geo}\"",
+    "\"multi-site\" \"franchise\" \"{geo}\""
+  ]
+}

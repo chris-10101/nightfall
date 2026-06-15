@@ -1,0 +1,20 @@
+{
+  "requires_review_before_send": true,
+  "allowed_auto_send_statuses": [
+    "approved_to_send",
+    "follow_up_approved"
+  ],
+  "dedupe_by": [
+    "email",
+    "company_domain",
+    "company_name"
+  ],
+  "send_window": {
+    "timezone": "Europe/London",
+    "weekdays_only": true,
+    "start": "09:30",
+    "end": "16:00"
+  },
+  "unsubscribe_required": true,
+  "reply_or_bounce_stops_sequence": true
+}

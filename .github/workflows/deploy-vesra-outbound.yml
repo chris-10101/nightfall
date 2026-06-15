@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - ".github/workflows/deploy-vesra-outbound.yml"
+      - "automations/outbound/**"
       - "automations/vesra-outbound/**"
 
   workflow_dispatch:

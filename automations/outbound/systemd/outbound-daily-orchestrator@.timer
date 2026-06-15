@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Nightfall outbound orchestration for tenant %i every UK weekday
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 09:15:00 Europe/London
+Persistent=true
+RandomizedDelaySec=10m
+Unit=outbound-daily-orchestrator@%i.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,40 @@
+{
+  "countries": [
+    "UK"
+  ],
+  "regions": [
+    "Yorkshire",
+    "North West England",
+    "North East England",
+    "East Midlands",
+    "West Midlands"
+  ],
+  "cities": [
+    "York",
+    "Harrogate",
+    "Leeds",
+    "Bradford",
+    "Wakefield",
+    "Huddersfield",
+    "Sheffield",
+    "Doncaster",
+    "Hull",
+    "Middlesbrough",
+    "Durham",
+    "Newcastle",
+    "Manchester",
+    "Stockport",
+    "Liverpool",
+    "Nottingham",
+    "Derby",
+    "Lincoln"
+  ],
+  "verticals": [],
+  "query_templates": [
+    "\"HR consultancy\" \"{geo}\"",
+    "\"outsourced HR\" \"{geo}\"",
+    "\"retained HR support\" \"{geo}\"",
+    "\"HR support\" \"SMEs\" \"{geo}\"",
+    "\"HR consultants\" \"small business\" \"{geo}\""
+  ]
+}

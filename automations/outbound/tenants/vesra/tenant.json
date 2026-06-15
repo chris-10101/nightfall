@@ -1,0 +1,26 @@
+{
+  "tenant_id": "vesra",
+  "display_name": "Vesra",
+  "description": "Vesra outbound campaigns for partner and operational HR platform ICPs.",
+  "legacy_automation_path": "../vesra-outbound",
+  "runtime": {
+    "env_file": "/etc/vesra/outbound.env",
+    "data_dir": "/var/lib/vesra/lead-gen-data",
+    "report_dir": "/var/lib/vesra/reports",
+    "batch_dir": "/var/lib/vesra/outreach-batches",
+    "orchestration_dir": "/var/lib/vesra/orchestration-runs"
+  },
+  "campaigns": [
+    "hr_consultancy_partner",
+    "franchise"
+  ],
+  "tools": {
+    "discover": ["python3", "lead-gen/scripts/discovery/discover_email_backed_icp.py"],
+    "enrich": ["python3", "lead-gen/scripts/enrichment/enrich_public_web.py"],
+    "orchestrate": ["python3", "lead-gen/scripts/orchestration/run_daily_orchestrator.py"],
+    "send-approved": ["python3", "lead-gen/scripts/outreach/send_agent_approved.py"],
+    "kb": ["python3", "lead-gen/scripts/kb/retrieve_kb.py"],
+    "weekly-plan": ["python3", "lead-gen/scripts/reporting/generate_weekly_plan.py"],
+    "weekly-report": ["python3", "lead-gen/scripts/reporting/generate_weekly_report.py"]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "campaign_name": "vesra_hr_partner_program_v1",
+  "subject": "Quick question",
+  "day_1": {
+    "subject": "Quick question",
+    "short_reason": "your HR advisory work",
+    "detail": "works with businesses on HR and people support",
+    "body_template": "Hi {first_name},\n\nI came across {company_name} and noticed you provide HR support to SMEs.\n\nOne thing we have heard repeatedly from HR consultancies is that clients increasingly expect a software platform alongside advice, policies, and support.\n\nVesra helps HR consultancies offer a branded HR platform to clients without having to build or maintain software themselves.\n\nThe result is stronger client retention, a more complete service offering, and an additional recurring revenue stream.\n\nWould it be worth sending over a short overview?\n\nBest,\nChris"
+  },
+  "follow_ups": [
+    {
+      "day": 4,
+      "subject": "Re: Quick question"
+    },
+    {
+      "day": 7,
+      "subject": "Helping HR consultancies grow recurring revenue"
+    },
+    {
+      "day": 14,
+      "subject": "Should I close your file"
+    }
+  ]
+}

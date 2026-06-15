@@ -1,0 +1,14 @@
+[Unit]
+Description=Nightfall outbound daily enrichment for tenant %i
+Wants=network-online.target
+After=network-online.target outbound-daily-discovery@%i.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/nightfall/automations/outbound
+Environment=NIGHTFALL_OUTBOUND_TENANT=%i
+EnvironmentFile=-/etc/nightfall/outbound/%i.env
+ExecStartPre=/usr/bin/mkdir -p /var/log/nightfall/outbound
+ExecStart=/bin/bash -lc 'set -euo pipefail; python3 tools/run_tenant_tool.py --tenant "%i" enrich --limit "${OUTBOUND_DAILY_ENRICH_LIMIT:-50}" --max-pages "${OUTBOUND_DAILY_ENRICH_MAX_PAGES:-2}" --checkpoint'
+StandardOutput=append:/var/log/nightfall/outbound/%i-enrichment.log
+StandardError=append:/var/log/nightfall/outbound/%i-enrichment.log

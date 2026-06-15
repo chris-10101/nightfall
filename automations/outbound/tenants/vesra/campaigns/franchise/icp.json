@@ -1,0 +1,178 @@
+{
+  "active": true,
+  "label": "Franchise Networks",
+  "campaign_name": "vesra_franchise_v1",
+  "segments": [
+    "Franchise Network",
+    "Franchisor",
+    "Franchise"
+  ],
+  "target_count": 300,
+  "criteria": [
+    "UK based",
+    "Established franchise brand",
+    "3-150 locations",
+    "Central head office",
+    "Growing network",
+    "50+ employees across the network",
+    "Distributed workforce",
+    "Multiple locations to manage",
+    "Existing operational processes but limited visibility across locations",
+    "No modern HR platform deployed consistently across the network"
+  ],
+  "operational_challenges": [
+    "Holiday management",
+    "Sickness tracking",
+    "Employee records",
+    "Policy distribution and acknowledgements",
+    "Onboarding new employees",
+    "Compliance management",
+    "Visibility across locations",
+    "Consistency between franchisees",
+    "Reporting and oversight",
+    "Scaling operations as the network grows"
+  ],
+  "why_good": [
+    "Head office often lacks visibility into day-to-day people management across the network",
+    "Processes become inconsistent as new locations are added",
+    "Administrative workload increases with growth",
+    "Franchisees often use different systems or spreadsheets",
+    "Vesra provides a central platform that standardises people management across the network"
+  ],
+  "ideal_size": [
+    "250-2,000 employees across the network"
+  ],
+  "sweet_spot": [
+    "3-100 locations",
+    "50-1,000 employees"
+  ],
+  "target_verticals": [
+    "Home care franchises",
+    "Children's activity franchises",
+    "Estate agency franchises",
+    "Trades franchises",
+    "Cleaning franchises",
+    "Hospitality franchises"
+  ],
+  "mission": "Help franchise networks scale with confidence.",
+  "core_value_proposition": "Give head office visibility and consistency across every location.",
+  "outcomes": [
+    "Better operational control",
+    "Greater visibility across the network",
+    "Lower administrative burden",
+    "Reduced compliance risk",
+    "Faster onboarding",
+    "More consistent employee experience",
+    "Easier network growth and expansion"
+  ],
+  "belief": "Growing franchise networks need modern systems to maintain consistency, visibility, and control as they scale.",
+  "required_terms_any": [
+    "franchise network",
+    "franchisor",
+    "franchisees",
+    "franchise locations",
+    "franchise opportunities",
+    "multi-site",
+    "multi site",
+    "head office",
+    "support centre",
+    "locations nationwide"
+  ],
+  "positive_terms": [
+    "franchisees",
+    "locations",
+    "network",
+    "head office",
+    "support centre",
+    "multi-site",
+    "multi site",
+    "operations",
+    "compliance",
+    "training",
+    "brand standards",
+    "onboarding",
+    "reporting",
+    "visibility",
+    "growth",
+    "expansion"
+  ],
+  "exclude_terms": [
+    "single-location",
+    "single location",
+    "owner-operator",
+    "owner operator",
+    "franchise consultant",
+    "franchise coaching",
+    "franchise directory",
+    "buy a franchise",
+    "franchise resale",
+    "franchise solicitor",
+    "franchise law",
+    "recruitment franchise",
+    "job board",
+    "fewer than 50 employees"
+  ],
+  "decision_maker_roles": [
+    "Founder",
+    "Owner",
+    "CEO",
+    "Managing Director",
+    "Franchise Director",
+    "Head of Franchise",
+    "Operations Director",
+    "People Director",
+    "HR Director"
+  ],
+  "discovery": {
+    "countries": [
+      "UK",
+      "England"
+    ],
+    "regions": [
+      "Yorkshire",
+      "North West England",
+      "North East England",
+      "East Midlands",
+      "West Midlands",
+      "South East England",
+      "South West England"
+    ],
+    "cities": [
+      "London",
+      "Manchester",
+      "Leeds",
+      "Birmingham",
+      "Liverpool",
+      "Sheffield",
+      "Newcastle",
+      "Nottingham",
+      "Bristol"
+    ],
+    "verticals": [
+      "home care",
+      "children's activities",
+      "kids activities",
+      "estate agency",
+      "trades",
+      "cleaning",
+      "hospitality",
+      "fitness",
+      "education",
+      "food"
+    ],
+    "query_templates": [
+      "\"{vertical}\" \"franchise network\" \"{geo}\"",
+      "\"{vertical}\" \"franchisor\" \"{geo}\"",
+      "\"{vertical}\" \"franchise opportunities\" \"{geo}\"",
+      "\"franchise network\" \"head office\" \"{geo}\"",
+      "\"franchisees\" \"head office\" \"{geo}\"",
+      "\"multi-site\" \"franchise\" \"{geo}\""
+    ]
+  },
+  "outreach": {
+    "subject": "Quick question",
+    "short_reason": "your franchise network",
+    "detail": "appears to run or support a franchise network with multiple locations",
+    "body_template": "Hi {first_name},\n\nI came across {company_name} and noticed you operate or support a franchise network.\n\nAs franchise networks grow, it often becomes harder for head office to keep visibility and consistency across holiday management, sickness tracking, employee records, policy acknowledgements, onboarding, and compliance.\n\nVesra helps franchise networks give head office a clearer, more consistent HR platform across locations without having to build or maintain software themselves.\n\nThe result is better operational control, lower admin burden, reduced compliance risk, and a more consistent employee experience across the network.\n\nWould it be worth sending over a short overview?\n\nBest,\nChris"
+  }
+}
