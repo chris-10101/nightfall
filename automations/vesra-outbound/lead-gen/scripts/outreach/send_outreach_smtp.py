@@ -6,7 +6,7 @@ import argparse
 import json
 import os
 import smtplib
-from datetime import datetime, time, timezone
+from datetime import datetime, time, timedelta, timezone
 from email.message import EmailMessage
 from pathlib import Path
 from urllib.parse import quote
@@ -27,6 +27,7 @@ CONFIG_EXAMPLE_PATH = CONFIG_DIR / "outbound_config.example.json"
 QUEUE_PATH = DATA_DIR / "campaign_queue.csv"
 SUPPRESSION_PATH = DATA_DIR / "suppression.csv"
 UK_TZ = ZoneInfo("Europe/London")
+APPROVED_AUTOMATION_STATUSES = {"approved_to_send", "follow_up_approved"}
 
 
 def load_config() -> dict:
@@ -203,19 +204,48 @@ def validate_batch_rows(config: dict, batch_rows: list[dict[str, str]], queue_ro
     return validated_rows
 
 
+def next_follow_up_at(sent_at: datetime, send_count: int) -> str:
+    days_by_step = {1: 4, 2: 3, 3: 7}
+    days = days_by_step.get(send_count, 0)
+    if not days:
+        return ""
+    return (sent_at + timedelta(days=days)).isoformat()
+
+
 def mark_sent(batch_rows: list[dict[str, str]], dry_run: bool) -> None:
     if dry_run:
         return
     queue_rows = read_csv(QUEUE_PATH)
     sent_ids = {row["lead_id"] for row in batch_rows}
-    now = datetime.now(timezone.utc).isoformat()
+    now_dt = datetime.now(timezone.utc)
+    now = now_dt.isoformat()
     for row in queue_rows:
         if row["lead_id"] in sent_ids:
+            previous_send_count = int(row.get("send_count") or 0)
+            new_send_count = previous_send_count + 1
+            if previous_send_count > 0:
+                row["follow_up_count"] = str(int(row.get("follow_up_count") or 0) + 1)
             row["campaign_status"] = "sent"
             row["last_outbound_at"] = now
-            row["send_count"] = str(int(row.get("send_count") or 0) + 1)
+            row["send_count"] = str(new_send_count)
             row["next_action"] = "monitor_reply"
+            row["next_action_due_at"] = next_follow_up_at(now_dt, new_send_count)
+            row["agent_next_action"] = "wait_until_due" if row["next_action_due_at"] else "none"
+            row["lifecycle_state"] = "waiting_follow_up" if row["next_action_due_at"] else "completed"
     write_csv(QUEUE_PATH, queue_rows, list(queue_rows[0].keys()) if queue_rows else [])
+
+
+def automation_send_allowed(batch_rows: list[dict[str, str]]) -> tuple[bool, str]:
+    if os.environ.get("VESRA_AUTO_SEND_ENABLED", "").strip().lower() not in {"1", "true", "yes"}:
+        return False, "VESRA_AUTO_SEND_ENABLED is not true."
+    bad_rows = [
+        row.get("lead_id") or row.get("email") or row.get("company_name", "")
+        for row in batch_rows
+        if (row.get("campaign_status") or "").strip().lower() not in APPROVED_AUTOMATION_STATUSES
+    ]
+    if bad_rows:
+        return False, "Batch contains rows not explicitly approved for automation: " + ", ".join(bad_rows[:5])
+    return True, "approved"
 
 
 def main() -> None:
@@ -223,6 +253,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Send or dry-run an outreach batch via SMTP.")
     parser.add_argument("batch_csv", help="CSV produced by prepare_outreach_batch.py")
     parser.add_argument("--send", action="store_true", help="Actually send emails. Omit for dry-run.")
+    parser.add_argument(
+        "--allow-approved-automation",
+        action="store_true",
+        help="Allow send when every row is explicitly approved and VESRA_AUTO_SEND_ENABLED=true.",
+    )
     args = parser.parse_args()
 
     config = load_config()
@@ -242,7 +277,11 @@ def main() -> None:
         return
 
     if config.get("review_required_before_send", True):
-        raise SystemExit("Config has review_required_before_send=true. Set it false only after reviewing the batch.")
+        if not args.allow_approved_automation:
+            raise SystemExit("Config has review_required_before_send=true. Set it false only after reviewing the batch.")
+        allowed, reason = automation_send_allowed(batch_rows)
+        if not allowed:
+            raise SystemExit(f"Approved automation send blocked: {reason}")
 
     smtp_config = config["smtp"]
     username = os.environ.get(smtp_config["username_env"])

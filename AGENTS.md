@@ -86,7 +86,10 @@ VESRA_LEAD_GEN_REPORT_DIR=/var/lib/vesra/reports
 VESRA_LEAD_GEN_BATCH_DIR=/var/lib/vesra/outreach-batches
 VESRA_LEAD_GEN_TEST_DIR=/var/lib/vesra/test-campaign
 VESRA_LEAD_GEN_ORCHESTRATION_DIR=/var/lib/vesra/orchestration-runs
+VESRA_LEAD_GEN_KB_DIR=/opt/nightfall/automations/vesra-outbound/lead-gen/docs
 VESRA_TEST_RECIPIENT=<internal test recipient>
+VESRA_AUTO_SEND_ENABLED=false
+VESRA_AGENT_SEND_LIMIT=5
 VESRA_UNSUBSCRIBE_SECRET=<secret>
 VESRA_MAILGUN_WEBHOOK_TOKEN=<secret>
 VESRA_SMTP_USERNAME=<mailgun smtp username>
@@ -159,6 +162,8 @@ vesra-daily-enrichment.service
 vesra-daily-enrichment.timer
 vesra-daily-orchestrator.service
 vesra-daily-orchestrator.timer
+vesra-agent-send-approved.service
+vesra-agent-send-approved.timer
 ```
 
 Schedule:
@@ -167,6 +172,7 @@ Schedule:
 vesra-daily-discovery.timer   Mon-Fri 07:30 Europe/London
 vesra-daily-enrichment.timer  Mon-Fri 08:45 Europe/London
 vesra-daily-orchestrator.timer Mon-Fri 09:15 Europe/London
+vesra-agent-send-approved.timer Mon-Fri 10:15 Europe/London
 ```
 
 Discovery runs both active ICPs with separate caps:
@@ -185,6 +191,21 @@ The lifecycle orchestrator makes deterministic next-action decisions such as
 `enrich_public_email`, `build_campaign_queue`, `review_campaign_copy`,
 `prepare_follow_up_review`, `review_data_quality`, or `none`. These jobs do
 not send production emails.
+
+The approved-send worker is installed but guarded. It sends only rows whose
+`campaign_status` is `approved_to_send` or `follow_up_approved`, only when
+`VESRA_AUTO_SEND_ENABLED=true`, and only after the SMTP sender re-runs the
+normal safety gates. With `VESRA_AUTO_SEND_ENABLED=false`, the timer is a
+clean no-op.
+
+Agent tools are registered in:
+
+```text
+lead-gen/config/agent_tools.json
+```
+
+The executor may only run registered tools and allowed arguments. Tool run logs
+are stored under `/var/lib/vesra/orchestration-runs/tool-runs`.
 
 Sentry is optional and controlled by `SENTRY_DSN`. Keep the DSN in
 `/etc/vesra/outbound.env`, never in Git. The Sentry setup deliberately uses
@@ -208,12 +229,15 @@ systemctl list-timers --all 'vesra-daily-*' --no-pager
 systemctl status vesra-daily-discovery.service --no-pager -l
 systemctl status vesra-daily-enrichment.service --no-pager -l
 systemctl status vesra-daily-orchestrator.service --no-pager -l
+systemctl status vesra-agent-send-approved.service --no-pager -l
 journalctl -u vesra-daily-discovery.service -n 80 --no-pager
 journalctl -u vesra-daily-enrichment.service -n 80 --no-pager
 journalctl -u vesra-daily-orchestrator.service -n 80 --no-pager
+journalctl -u vesra-agent-send-approved.service -n 80 --no-pager
 tail -n 80 /var/log/vesra/daily-discovery.log
 tail -n 80 /var/log/vesra/daily-enrichment.log
 tail -n 80 /var/log/vesra/daily-orchestrator.log
+tail -n 80 /var/log/vesra/agent-send-approved.log
 ```
 
 ### Production Safety Rules

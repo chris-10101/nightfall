@@ -56,6 +56,11 @@ HEADERS = [
     "campaign_step",
     "campaign_step_due_at",
     "last_agent_run_id",
+    "planned_tool",
+    "planned_tool_args",
+    "planned_reason",
+    "tool_status",
+    "tool_result_summary",
 ]
 
 POSTCODE_RE = re.compile(r"([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})$", re.I)

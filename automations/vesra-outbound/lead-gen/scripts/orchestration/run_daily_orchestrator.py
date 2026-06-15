@@ -42,9 +42,15 @@ LIFECYCLE_FIELDS = [
     "campaign_step",
     "campaign_step_due_at",
     "last_agent_run_id",
+    "planned_tool",
+    "planned_tool_args",
+    "planned_reason",
+    "tool_status",
+    "tool_result_summary",
 ]
 
 READY_QUEUE_STATUSES = {"ready_for_draft", "selected_for_review"}
+APPROVED_SEND_STATUSES = {"approved_to_send", "follow_up_approved"}
 SENT_QUEUE_STATUSES = {"sent"}
 STOP_QUEUE_STATUSES = {"stopped", "suppressed", "unsubscribed", "bounced", "failed"}
 
@@ -166,12 +172,42 @@ def decision(
         return state("needs_review", "review_icp_fit", decision_at, "Could not map row to active ICP profile.", "missing_icp_profile", "true", run_id)
 
     if not combined.get("website_url") and not combined.get("email"):
-        return state("research_needed", "discover_or_enrich_contact", decision_at, "Missing website and email.", "missing_contact_routes", "false", run_id)
+        return state(
+            "research_needed",
+            "discover_or_enrich_contact",
+            decision_at,
+            "Missing website and email.",
+            "missing_contact_routes",
+            "false",
+            run_id,
+            planned_tool="discover_icp_contacts",
+            planned_tool_args={"--max-new": "20", "--max-pages": "2", "--checkpoint": True},
+        )
 
     if not combined.get("email"):
         if combined.get("website_url"):
-            return state("enrichment_needed", "enrich_public_email", decision_at, "Website exists but email is missing.", "missing_email", "false", run_id)
-        return state("research_needed", "discover_contact_email", decision_at, "Email is missing.", "missing_email", "false", run_id)
+            return state(
+                "enrichment_needed",
+                "enrich_public_email",
+                decision_at,
+                "Website exists but email is missing.",
+                "missing_email",
+                "false",
+                run_id,
+                planned_tool="enrich_public_web",
+                planned_tool_args={"--limit": "50", "--max-pages": "2", "--only-missing-email": True, "--checkpoint": True},
+            )
+        return state(
+            "research_needed",
+            "discover_contact_email",
+            decision_at,
+            "Email is missing.",
+            "missing_email",
+            "false",
+            run_id,
+            planned_tool="discover_icp_contacts",
+            planned_tool_args={"--max-new": "20", "--max-pages": "2", "--checkpoint": True},
+        )
 
     eligibility = evaluate_prospect(combined, suppressed_values=suppressed_values)
     if not eligibility["eligible"]:
@@ -190,6 +226,8 @@ def decision(
             ",".join(blocked_codes),
             review,
             run_id,
+            planned_tool="retrieve_kb_context" if review == "true" else "",
+            planned_tool_args={"--query": " ".join(blocked_codes), "--limit": "5"} if review == "true" else None,
         )
 
     if not queue_row:
@@ -201,13 +239,39 @@ def decision(
             "",
             "false",
             run_id,
+            planned_tool="qualify_and_queue",
+            planned_tool_args={},
         )
 
     campaign_status = (queue_row.get("campaign_status") or "").strip().lower()
     if campaign_status in STOP_QUEUE_STATUSES:
         return state("stopped", "none", decision_at, f"Queue status is {campaign_status}.", campaign_status, "false", run_id)
+    if campaign_status in APPROVED_SEND_STATUSES:
+        return state(
+            "approved_to_send",
+            "send_approved_email",
+            decision_at,
+            f"Queue status is {campaign_status}; eligible for approved send worker.",
+            "",
+            "false",
+            run_id,
+            next_workday_at(10, 15),
+            planned_tool="send_approved_campaign",
+            planned_tool_args={"--limit": "5", "--send": True},
+        )
     if campaign_status in READY_QUEUE_STATUSES:
-        return state("ready_for_review", "review_campaign_copy", decision_at, "Campaign copy is ready for human review.", "", "true", run_id)
+        query = f"{combined.get('segment', '')} {combined.get('company_name', '')} campaign copy objections Vesra"
+        return state(
+            "ready_for_review",
+            "review_campaign_copy",
+            decision_at,
+            "Campaign copy is ready for human review.",
+            "",
+            "true",
+            run_id,
+            planned_tool="retrieve_kb_context",
+            planned_tool_args={"--query": query, "--limit": "5"},
+        )
     if campaign_status in SENT_QUEUE_STATUSES:
         next_due = parse_dt(queue_row.get("next_action_due_at") or queue_row.get("follow_up_at", ""))
         count = sequence_count(queue_row)
@@ -215,7 +279,18 @@ def decision(
         if count >= max_follow_ups:
             return state("completed", "none", decision_at, "Campaign sequence cap reached.", "sequence_cap_reached", "false", run_id)
         if next_due and now_uk() >= next_due:
-            return state("follow_up_due", "prepare_follow_up_review", decision_at, "Follow-up is due.", "", "true", run_id, next_due)
+            return state(
+                "follow_up_due",
+                "prepare_follow_up_review",
+                decision_at,
+                "Follow-up is due.",
+                "",
+                "true",
+                run_id,
+                next_due,
+                planned_tool="retrieve_kb_context",
+                planned_tool_args={"--query": "follow up sequence Vesra HR consultancy franchise", "--limit": "5"},
+            )
         due = next_due or next_workday_at(10, 0)
         return state("waiting_follow_up", "wait_until_due", decision_at, "Waiting for follow-up due date.", "", "false", run_id, due)
 
@@ -231,6 +306,8 @@ def state(
     requires_review: str,
     run_id: str,
     next_action_at: datetime | None = None,
+    planned_tool: str = "",
+    planned_tool_args: dict | None = None,
 ) -> dict[str, str]:
     return {
         "lifecycle_state": lifecycle_state,
@@ -244,6 +321,11 @@ def state(
         "campaign_step": "",
         "campaign_step_due_at": iso(next_action_at) if next_action_at else "",
         "last_agent_run_id": run_id,
+        "planned_tool": planned_tool,
+        "planned_tool_args": json.dumps(planned_tool_args or {}, sort_keys=True),
+        "planned_reason": last_decision,
+        "tool_status": "planned" if planned_tool else "",
+        "tool_result_summary": "",
     }
 
 

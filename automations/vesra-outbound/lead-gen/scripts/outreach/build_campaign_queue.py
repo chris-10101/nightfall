@@ -83,6 +83,11 @@ QUEUE_HEADERS = [
     "campaign_step",
     "campaign_step_due_at",
     "last_agent_run_id",
+    "planned_tool",
+    "planned_tool_args",
+    "planned_reason",
+    "tool_status",
+    "tool_result_summary",
 ]
 
 
@@ -312,6 +317,11 @@ def build_queue_rows() -> list[dict[str, str]]:
                 "campaign_step": existing.get("campaign_step") or prospect.get("campaign_step", ""),
                 "campaign_step_due_at": existing.get("campaign_step_due_at") or prospect.get("campaign_step_due_at", ""),
                 "last_agent_run_id": existing.get("last_agent_run_id") or prospect.get("last_agent_run_id", ""),
+                "planned_tool": existing.get("planned_tool") or prospect.get("planned_tool", ""),
+                "planned_tool_args": existing.get("planned_tool_args") or prospect.get("planned_tool_args", ""),
+                "planned_reason": existing.get("planned_reason") or prospect.get("planned_reason", ""),
+                "tool_status": existing.get("tool_status") or prospect.get("tool_status", ""),
+                "tool_result_summary": existing.get("tool_result_summary") or prospect.get("tool_result_summary", ""),
             }
         )
         candidates.append(row)

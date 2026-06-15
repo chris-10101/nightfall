@@ -28,3 +28,7 @@ def outreach_batches_dir() -> Path:
 
 def orchestration_dir() -> Path:
     return configured_dir("VESRA_LEAD_GEN_ORCHESTRATION_DIR", BASE_DIR / "reports" / "orchestration")
+
+
+def kb_dir() -> Path:
+    return configured_dir("VESRA_LEAD_GEN_KB_DIR", BASE_DIR / "docs")
