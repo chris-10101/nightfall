@@ -10,10 +10,10 @@ from urllib.parse import urlparse
 
 from core.csv_store import append_csv_atomic, read_csv, write_csv_atomic
 from core.eligibility_rules import FREE_PERSONAL_DOMAINS
+from core.paths import data_dir
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-DATA_DIR = BASE_DIR / "data"
+DATA_DIR = data_dir()
 SUPPRESSION_PATH = DATA_DIR / "suppression.csv"
 QUEUE_PATH = DATA_DIR / "campaign_queue.csv"
 PROSPECTS_PATH = DATA_DIR / "prospects.csv"

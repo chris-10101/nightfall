@@ -14,12 +14,12 @@ from zoneinfo import ZoneInfo
 
 from core.csv_store import read_csv, write_csv_atomic
 from core.eligibility_rules import dedupe_keys, evaluate_prospect, is_uk_working_hours
+from core.paths import config_dir, data_dir
 from outreach.unsubscribe_tokens import unsubscribe_url
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-CONFIG_DIR = BASE_DIR / "config"
-DATA_DIR = BASE_DIR / "data"
+CONFIG_DIR = config_dir()
+DATA_DIR = data_dir()
 CONFIG_PATH = CONFIG_DIR / "outbound_config.json"
 CONFIG_EXAMPLE_PATH = CONFIG_DIR / "outbound_config.example.json"
 QUEUE_PATH = DATA_DIR / "campaign_queue.csv"

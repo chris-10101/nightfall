@@ -15,10 +15,10 @@ from core.eligibility_rules import (
     website_domain,
 )
 from core.icp_profiles import campaign_name, is_active_segment, outreach_config, profile_for_row, profile_positive_score
+from core.paths import data_dir
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-DATA_DIR = BASE_DIR / "data"
+DATA_DIR = data_dir()
 PROSPECTS_PATH = DATA_DIR / "prospects.csv"
 QUEUE_PATH = DATA_DIR / "campaign_queue.csv"
 SUPPRESSION_PATH = DATA_DIR / "suppression.csv"

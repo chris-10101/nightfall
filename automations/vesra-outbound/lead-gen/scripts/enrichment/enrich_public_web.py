@@ -15,10 +15,11 @@ from urllib.parse import unquote, urljoin, urlparse
 from urllib.request import Request, urlopen
 
 from core.csv_store import read_csv, write_csv_atomic
+from core.paths import data_dir
 from imports.import_hr_consultancies import HEADERS
 
 
-PROSPECTS_PATH = Path(__file__).resolve().parents[2] / "data" / "prospects.csv"
+PROSPECTS_PATH = data_dir() / "prospects.csv"
 socket.setdefaulttimeout(12)
 EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
 LINKEDIN_RE = re.compile(r"https?://(?:[a-z]{2,3}\.)?linkedin\.com/[^\s\"'<>]+", re.I)

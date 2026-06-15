@@ -13,11 +13,11 @@ from core.csv_store import read_csv, write_csv_atomic
 from discovery.discover_hr_consultancies import fetch_rss, root_domain
 from enrichment.enrich_public_web import best_email, candidate_pages, email_type, emails_from_links, fetch, parse_page
 from core.icp_profiles import active_profiles, normalize
+from core.paths import data_dir
 from imports.import_hr_consultancies import HEADERS
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-PROSPECTS_PATH = BASE_DIR / "data" / "prospects.csv"
+PROSPECTS_PATH = data_dir() / "prospects.csv"
 TODAY = date.today().isoformat()
 EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
 

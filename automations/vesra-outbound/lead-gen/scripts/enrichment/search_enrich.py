@@ -15,10 +15,11 @@ from urllib.request import Request, urlopen
 from xml.etree import ElementTree
 
 from core.csv_store import read_csv, write_csv_atomic
+from core.paths import data_dir
 from imports.import_hr_consultancies import HEADERS
 
 
-PROSPECTS_PATH = Path(__file__).resolve().parents[2] / "data" / "prospects.csv"
+PROSPECTS_PATH = data_dir() / "prospects.csv"
 SEARCH_URL = "https://duckduckgo.com/html/?q={query}"
 BING_SEARCH_URL = "https://www.bing.com/search?format=rss&q={query}"
 

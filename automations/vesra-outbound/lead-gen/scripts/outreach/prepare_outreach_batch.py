@@ -9,13 +9,13 @@ from pathlib import Path
 
 from core.csv_store import read_csv, write_csv_atomic
 from core.eligibility_rules import dedupe_keys, evaluate_prospect
+from core.paths import data_dir, outreach_batches_dir
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-DATA_DIR = BASE_DIR / "data"
+DATA_DIR = data_dir()
 QUEUE_PATH = DATA_DIR / "campaign_queue.csv"
 SUPPRESSION_PATH = DATA_DIR / "suppression.csv"
-BATCH_DIR = BASE_DIR / "outreach" / "batches"
+BATCH_DIR = outreach_batches_dir()
 
 
 def write_csv(path: Path, rows: list[dict[str, str]], headers: list[str]) -> None:

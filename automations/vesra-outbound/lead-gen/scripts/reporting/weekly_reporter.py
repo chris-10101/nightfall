@@ -13,13 +13,13 @@ from zoneinfo import ZoneInfo
 
 from core.csv_store import read_csv
 from core.icp_profiles import active_profiles, profile_for_row
+from core.paths import config_dir, data_dir, outreach_batches_dir, reports_dir
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-CONFIG_DIR = BASE_DIR / "config"
-DATA_DIR = BASE_DIR / "data"
-REPORT_DIR = BASE_DIR / "reports" / "weekly"
-OUTREACH_BATCH_DIR = BASE_DIR / "outreach" / "batches"
+CONFIG_DIR = config_dir()
+DATA_DIR = data_dir()
+REPORT_DIR = reports_dir()
+OUTREACH_BATCH_DIR = outreach_batches_dir()
 CONFIG_PATH = CONFIG_DIR / "outbound_config.json"
 CONFIG_EXAMPLE_PATH = CONFIG_DIR / "outbound_config.example.json"
 PROSPECTS_PATH = DATA_DIR / "prospects.csv"

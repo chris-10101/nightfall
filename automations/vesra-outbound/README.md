@@ -25,4 +25,13 @@ Recommended server paths:
 /etc/vesra/outbound.env                        # secrets and API keys
 ```
 
+Set these environment variables for production services and scheduled jobs:
+
+```text
+VESRA_LEAD_GEN_DATA_DIR=/var/lib/vesra/lead-gen-data
+VESRA_LEAD_GEN_CONFIG_DIR=/etc/vesra/config
+VESRA_LEAD_GEN_REPORT_DIR=/var/lib/vesra/reports
+VESRA_LEAD_GEN_BATCH_DIR=/var/lib/vesra/outreach-batches
+```
+
 Do not commit live prospect data, campaign queues, suppressions, SMTP credentials, Mailgun tokens, Hunter keys, or generated batch files.
