@@ -1,0 +1,323 @@
+{
+  "hr_consultancy_partner": {
+    "active": true,
+    "label": "HR Consultancies",
+    "campaign_name": "vesra_hr_partner_program_v1",
+    "segments": [
+      "HR Consultancy"
+    ],
+    "target_count": 300,
+    "criteria": [
+      "UK based",
+      "2-50 employees",
+      "20+ active clients",
+      "Ongoing retained client relationships",
+      "Provides outsourced HR support",
+      "Advises SMEs on people, compliance, and employment matters",
+      "Looking to grow recurring revenue",
+      "Does not have its own software platform"
+    ],
+    "operational_challenges": [
+      "Revenue tied to consulting hours",
+      "Clients increasingly expect software alongside advice",
+      "Difficulty differentiating from other consultancies",
+      "Limited recurring revenue streams",
+      "Risk of clients moving to larger providers with technology offerings",
+      "Growing pressure to embrace AI and automation"
+    ],
+    "why_good": [
+      "Already have trusted client relationships",
+      "Regularly advise clients on HR processes and systems",
+      "Clients frequently ask for software recommendations",
+      "Can introduce Vesra as part of an existing service offering",
+      "Strong opportunity for recurring revenue and client retention"
+    ],
+    "ideal_size": [
+      "50-500 client employees managed across the consultancy client base"
+    ],
+    "sweet_spot": [
+      "20-200 active clients",
+      "2-20 consultancy employees",
+      "Retained HR support model"
+    ],
+    "target_verticals": [],
+    "mission": "Help HR consultancies thrive in the AI era.",
+    "core_value_proposition": "Turn HR expertise into recurring software revenue.",
+    "outcomes": [
+      "More revenue",
+      "Better client retention",
+      "More value for clients",
+      "Stronger differentiation",
+      "Reduced reliance on billable hours",
+      "A more modern service offering"
+    ],
+    "belief": "Clients increasingly expect software, self-service, and AI-powered experiences alongside professional advice.",
+    "required_terms_any": [
+      "hr consultancy",
+      "hr consultant",
+      "hr consultants",
+      "hr support",
+      "outsourced hr",
+      "retained hr",
+      "human resources",
+      "employee relations",
+      "employment law"
+    ],
+    "positive_terms": [
+      "sme",
+      "smes",
+      "small business",
+      "owner-managed",
+      "retained",
+      "outsourced",
+      "policies",
+      "handbooks",
+      "employee relations",
+      "compliance",
+      "employment documentation"
+    ],
+    "exclude_terms": [
+      "recruitment agency",
+      "staffing agency",
+      "job board",
+      "payroll software",
+      "hr software platform",
+      "applicant tracking",
+      "enterprise hr platform",
+      "single consultant",
+      "solo consultant"
+    ],
+    "decision_maker_roles": [
+      "Founder",
+      "Owner",
+      "Managing Director",
+      "Director",
+      "Partner",
+      "Principal Consultant"
+    ],
+    "discovery": {
+      "countries": [
+        "UK"
+      ],
+      "regions": [
+        "Yorkshire",
+        "North West England",
+        "North East England",
+        "East Midlands",
+        "West Midlands"
+      ],
+      "cities": [
+        "York",
+        "Harrogate",
+        "Leeds",
+        "Bradford",
+        "Wakefield",
+        "Huddersfield",
+        "Sheffield",
+        "Doncaster",
+        "Hull",
+        "Middlesbrough",
+        "Durham",
+        "Newcastle",
+        "Manchester",
+        "Stockport",
+        "Liverpool",
+        "Nottingham",
+        "Derby",
+        "Lincoln"
+      ],
+      "verticals": [],
+      "query_templates": [
+        "\"HR consultancy\" \"{geo}\"",
+        "\"outsourced HR\" \"{geo}\"",
+        "\"retained HR support\" \"{geo}\"",
+        "\"HR support\" \"SMEs\" \"{geo}\"",
+        "\"HR consultants\" \"small business\" \"{geo}\""
+      ]
+    },
+    "outreach": {
+      "subject": "Quick question",
+      "short_reason": "your HR advisory work",
+      "detail": "works with businesses on HR and people support",
+      "body_template": "Hi {first_name},\n\nI came across {company_name} and noticed you provide HR support to SMEs.\n\nOne thing we have heard repeatedly from HR consultancies is that clients increasingly expect a software platform alongside advice, policies, and support.\n\nVesra helps HR consultancies offer a branded HR platform to clients without having to build or maintain software themselves.\n\nThe result is stronger client retention, a more complete service offering, and an additional recurring revenue stream.\n\nWould it be worth sending over a short overview?\n\nBest,\nChris"
+    }
+  },
+  "franchise": {
+    "active": true,
+    "label": "Franchise Networks",
+    "campaign_name": "vesra_franchise_v1",
+    "segments": [
+      "Franchise Network",
+      "Franchisor",
+      "Franchise"
+    ],
+    "target_count": 300,
+    "criteria": [
+      "UK based",
+      "Established franchise brand",
+      "3-150 locations",
+      "Central head office",
+      "Growing network",
+      "50+ employees across the network",
+      "Distributed workforce",
+      "Multiple locations to manage",
+      "Existing operational processes but limited visibility across locations",
+      "No modern HR platform deployed consistently across the network"
+    ],
+    "operational_challenges": [
+      "Holiday management",
+      "Sickness tracking",
+      "Employee records",
+      "Policy distribution and acknowledgements",
+      "Onboarding new employees",
+      "Compliance management",
+      "Visibility across locations",
+      "Consistency between franchisees",
+      "Reporting and oversight",
+      "Scaling operations as the network grows"
+    ],
+    "why_good": [
+      "Head office often lacks visibility into day-to-day people management across the network",
+      "Processes become inconsistent as new locations are added",
+      "Administrative workload increases with growth",
+      "Franchisees often use different systems or spreadsheets",
+      "Vesra provides a central platform that standardises people management across the network"
+    ],
+    "ideal_size": [
+      "250-2,000 employees across the network"
+    ],
+    "sweet_spot": [
+      "3-100 locations",
+      "50-1,000 employees"
+    ],
+    "target_verticals": [
+      "Home care franchises",
+      "Children's activity franchises",
+      "Estate agency franchises",
+      "Trades franchises",
+      "Cleaning franchises",
+      "Hospitality franchises"
+    ],
+    "mission": "Help franchise networks scale with confidence.",
+    "core_value_proposition": "Give head office visibility and consistency across every location.",
+    "outcomes": [
+      "Better operational control",
+      "Greater visibility across the network",
+      "Lower administrative burden",
+      "Reduced compliance risk",
+      "Faster onboarding",
+      "More consistent employee experience",
+      "Easier network growth and expansion"
+    ],
+    "belief": "Growing franchise networks need modern systems to maintain consistency, visibility, and control as they scale.",
+    "required_terms_any": [
+      "franchise network",
+      "franchisor",
+      "franchisees",
+      "franchise locations",
+      "franchise opportunities",
+      "multi-site",
+      "multi site",
+      "head office",
+      "support centre",
+      "locations nationwide"
+    ],
+    "positive_terms": [
+      "franchisees",
+      "locations",
+      "network",
+      "head office",
+      "support centre",
+      "multi-site",
+      "multi site",
+      "operations",
+      "compliance",
+      "training",
+      "brand standards",
+      "onboarding",
+      "reporting",
+      "visibility",
+      "growth",
+      "expansion"
+    ],
+    "exclude_terms": [
+      "single-location",
+      "single location",
+      "owner-operator",
+      "owner operator",
+      "franchise consultant",
+      "franchise coaching",
+      "franchise directory",
+      "buy a franchise",
+      "franchise resale",
+      "franchise solicitor",
+      "franchise law",
+      "recruitment franchise",
+      "job board",
+      "fewer than 50 employees"
+    ],
+    "decision_maker_roles": [
+      "Founder",
+      "Owner",
+      "CEO",
+      "Managing Director",
+      "Franchise Director",
+      "Head of Franchise",
+      "Operations Director",
+      "People Director",
+      "HR Director"
+    ],
+    "discovery": {
+      "countries": [
+        "UK",
+        "England"
+      ],
+      "regions": [
+        "Yorkshire",
+        "North West England",
+        "North East England",
+        "East Midlands",
+        "West Midlands",
+        "South East England",
+        "South West England"
+      ],
+      "cities": [
+        "London",
+        "Manchester",
+        "Leeds",
+        "Birmingham",
+        "Liverpool",
+        "Sheffield",
+        "Newcastle",
+        "Nottingham",
+        "Bristol"
+      ],
+      "verticals": [
+        "home care",
+        "children's activities",
+        "kids activities",
+        "estate agency",
+        "trades",
+        "cleaning",
+        "hospitality",
+        "fitness",
+        "education",
+        "food"
+      ],
+      "query_templates": [
+        "\"{vertical}\" \"franchise network\" \"{geo}\"",
+        "\"{vertical}\" \"franchisor\" \"{geo}\"",
+        "\"{vertical}\" \"franchise opportunities\" \"{geo}\"",
+        "\"franchise network\" \"head office\" \"{geo}\"",
+        "\"franchisees\" \"head office\" \"{geo}\"",
+        "\"multi-site\" \"franchise\" \"{geo}\""
+      ]
+    },
+    "outreach": {
+      "subject": "Quick question",
+      "short_reason": "your franchise network",
+      "detail": "appears to run or support a franchise network with multiple locations",
+      "body_template": "Hi {first_name},\n\nI came across {company_name} and noticed you operate or support a franchise network.\n\nAs franchise networks grow, it often becomes harder for head office to keep visibility and consistency across holiday management, sickness tracking, employee records, policy acknowledgements, onboarding, and compliance.\n\nVesra helps franchise networks give head office a clearer, more consistent HR platform across locations without having to build or maintain software themselves.\n\nThe result is better operational control, lower admin burden, reduced compliance risk, and a more consistent employee experience across the network.\n\nWould it be worth sending over a short overview?\n\nBest,\nChris"
+    }
+  }
+}

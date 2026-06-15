@@ -1,0 +1,21 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Secrets and local environment.
+.env
+*.env
+!.env.example
+
+# Runtime lead-gen state. These files live on the server, not in Git.
+**/lead-gen/data/*.csv
+**/lead-gen/data/archive/
+**/lead-gen/outreach/batches/*.csv
+**/lead-gen/outreach/archive/
+**/lead-gen/config/outbound_config.json
+**/lead-gen/config/test_campaign_config.json
+**/lead-gen/tests/test_campaign_state.csv
+**/lead-gen/tests/archive/

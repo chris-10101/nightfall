@@ -1,0 +1,32 @@
+{
+  "brand": "Vesra",
+  "sender_name": "Chris Smith",
+  "from_email": "chris@vesra.io",
+  "reply_to": "chris@vesra.io",
+  "sending_mode": "smtp",
+  "daily_send_limit": 20,
+  "per_domain_daily_limit": 1,
+  "timezone": "Europe/London",
+  "send_weekdays_only": true,
+  "send_window_start": "09:30",
+  "send_window_end": "16:00",
+  "review_required_before_send": true,
+  "unsubscribe_mailto": "chris@vesra.io",
+  "unsubscribe_base_url": "https://getvesra.co.uk/unsubscribe",
+  "unsubscribe_secret_env": "VESRA_UNSUBSCRIBE_SECRET",
+  "unsubscribe_subject": "Unsubscribe",
+  "unsubscribe_text": "If this is not relevant, reply unsubscribe and I will not contact you again.",
+  "smtp": {
+    "host": "smtp.gmail.com",
+    "port": 587,
+    "username_env": "VESRA_SMTP_USERNAME",
+    "password_env": "VESRA_SMTP_APP_PASSWORD"
+  },
+  "gmail_connector": {
+    "enabled": false,
+    "notes": "Use when Gmail connector has read + compose scopes. Current connector does not expose a from alias field."
+  },
+  "booking_link": "TODO_ADD_BOOKING_LINK",
+  "demo_video_link": "TODO_ADD_DEMO_VIDEO_LINK",
+  "partner_deck_link": "TODO_ADD_PARTNER_DECK_LINK"
+}

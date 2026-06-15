@@ -1,0 +1,29 @@
+{
+  "test_recipient_env": "VESRA_TEST_RECIPIENT",
+  "sequence": [
+    {
+      "step": 1,
+      "delay_minutes": 0,
+      "subject": "[TEST] Quick question",
+      "body": "Hi Chris,\n\nI came across Example HR and noticed you provide HR support to SMEs.\n\nOne thing we have heard repeatedly from HR consultancies is that clients increasingly expect a software platform alongside advice, policies, and support.\n\nVesra helps HR consultancies offer a branded HR platform to clients without having to build or maintain software themselves.\n\nThe result is stronger client retention, a more complete service offering, and an additional recurring revenue stream.\n\nWould it be worth sending over a short overview?\n\nIf this is not relevant, reply unsubscribe and I will not contact you again.\nUnsubscribe: mailto:chris@getvesra.co.uk?subject=Unsubscribe\n\nBest,\nChris"
+    },
+    {
+      "step": 2,
+      "delay_minutes": 60,
+      "subject": "[TEST] Re: Quick question",
+      "body": "Hi Chris,\n\nJust following up in case my previous email got buried.\n\nOut of interest, do your clients ever ask for recommendations on HR software or systems?\n\nThat is typically where we see the strongest fit, as many HR consultancies want to provide clients with more than advice and documentation alone.\n\nHappy to send over a brief overview if helpful.\n\nIf this is not relevant, reply unsubscribe and I will not contact you again.\nUnsubscribe: mailto:chris@getvesra.co.uk?subject=Unsubscribe\n\nBest,\nChris"
+    },
+    {
+      "step": 3,
+      "delay_minutes": 120,
+      "subject": "[TEST] Helping HR consultancies grow recurring revenue",
+      "body": "Hi Chris,\n\nOne reason HR consultancies explore Vesra is that it allows them to generate recurring software revenue alongside their consultancy services.\n\nRather than simply recommending a third-party platform, partners can offer their own branded HR solution to clients while continuing to provide advice and support.\n\nIt helps strengthen client relationships and creates an additional revenue stream without increasing consulting hours.\n\nWould it be useful to see how it works?\n\nIf this is not relevant, reply unsubscribe and I will not contact you again.\nUnsubscribe: mailto:chris@getvesra.co.uk?subject=Unsubscribe\n\nBest,\nChris"
+    },
+    {
+      "step": 4,
+      "delay_minutes": 180,
+      "subject": "[TEST] Should I close your file?",
+      "body": "Hi Chris,\n\nI have tried reaching out a couple of times and have not heard back, so I will assume one of the following:\n\n- Timing is not right.\n- It is not relevant.\n- You are busy helping clients.\n\nIf offering HR software as part of your service is not something you are exploring right now, no problem at all.\n\nJust let me know and I will close the file.\n\nIf this is not relevant, reply unsubscribe and I will not contact you again.\nUnsubscribe: mailto:chris@getvesra.co.uk?subject=Unsubscribe\n\nBest,\nChris"
+    }
+  ]
+}
