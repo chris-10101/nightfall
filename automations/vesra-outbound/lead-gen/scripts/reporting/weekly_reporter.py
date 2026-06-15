@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 
 from core.csv_store import read_csv
 from core.icp_profiles import active_profiles, profile_for_row
+from core.monitoring import init_sentry
 from core.paths import config_dir, data_dir, outreach_batches_dir, reports_dir
 
 

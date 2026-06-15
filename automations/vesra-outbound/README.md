@@ -22,6 +22,12 @@ the discovery scripts. On Ubuntu this is installed with:
 apt-get install -y python3-openpyxl
 ```
 
+Install `sentry-sdk` as well when production error reporting is enabled:
+
+```bash
+apt-get install -y python3-sentry-sdk
+```
+
 ## Production Runtime
 
 Recommended server paths:
@@ -41,6 +47,8 @@ VESRA_LEAD_GEN_CONFIG_DIR=/etc/vesra/config
 VESRA_LEAD_GEN_REPORT_DIR=/var/lib/vesra/reports
 VESRA_LEAD_GEN_BATCH_DIR=/var/lib/vesra/outreach-batches
 VESRA_LEAD_GEN_TEST_DIR=/var/lib/vesra/test-campaign
+SENTRY_DSN=<sentry project dsn>
+SENTRY_ENVIRONMENT=production
 ```
 
 Do not commit live prospect data, campaign queues, suppressions, SMTP credentials, Mailgun tokens, Hunter keys, or generated batch files.

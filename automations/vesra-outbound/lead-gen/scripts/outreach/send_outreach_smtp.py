@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 
 from core.csv_store import read_csv, write_csv_atomic
 from core.eligibility_rules import dedupe_keys, evaluate_prospect, is_uk_working_hours
+from core.monitoring import init_sentry
 from core.paths import config_dir, data_dir
 from outreach.email_formatting import html_with_unsubscribe_link, plain_unsubscribe_footer
 from outreach.unsubscribe_tokens import unsubscribe_url
@@ -218,6 +219,7 @@ def mark_sent(batch_rows: list[dict[str, str]], dry_run: bool) -> None:
 
 
 def main() -> None:
+    init_sentry("send-outreach-smtp")
     parser = argparse.ArgumentParser(description="Send or dry-run an outreach batch via SMTP.")
     parser.add_argument("batch_csv", help="CSV produced by prepare_outreach_batch.py")
     parser.add_argument("--send", action="store_true", help="Actually send emails. Omit for dry-run.")

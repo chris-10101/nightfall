@@ -11,6 +11,7 @@ from html import escape
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
+from core.monitoring import capture_exception, init_sentry
 from outreach.suppression import add_suppression, record_reply
 from outreach.unsubscribe_tokens import DEFAULT_SECRET_ENV, verify_token
 
@@ -22,6 +23,20 @@ class UnsubscribeHandler(BaseHTTPRequestHandler):
     server_version = "VesraUnsubscribe/1.0"
 
     def do_GET(self) -> None:
+        try:
+            self.handle_get()
+        except Exception as exc:
+            capture_exception(exc)
+            self.respond_json({"ok": False, "error": "server_error"}, status=500)
+
+    def do_POST(self) -> None:
+        try:
+            self.handle_post()
+        except Exception as exc:
+            capture_exception(exc)
+            self.respond_json({"ok": False, "error": "server_error"}, status=500)
+
+    def handle_get(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path == "/health":
             self.respond_json({"ok": True})
@@ -33,7 +48,7 @@ class UnsubscribeHandler(BaseHTTPRequestHandler):
         token = first(query, "token")
         self.process_unsubscribe_token(token, response_format="html")
 
-    def do_POST(self) -> None:
+    def handle_post(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path == "/unsubscribe":
             fields = self.parse_post_fields()
@@ -155,6 +170,7 @@ def first(values: dict[str, list[str]], key: str) -> str:
 
 
 def main() -> None:
+    init_sentry("webhook")
     parser = argparse.ArgumentParser(description="Run the Vesra unsubscribe/reply webhook server.")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8088)

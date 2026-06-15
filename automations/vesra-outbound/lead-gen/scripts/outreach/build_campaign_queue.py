@@ -15,6 +15,7 @@ from core.eligibility_rules import (
     website_domain,
 )
 from core.icp_profiles import campaign_name, is_active_segment, outreach_config, profile_for_row, profile_positive_score
+from core.monitoring import init_sentry
 from core.paths import data_dir
 
 
@@ -338,6 +339,7 @@ def build_queue_rows() -> list[dict[str, str]]:
 
 
 def main() -> None:
+    init_sentry("build-campaign-queue")
     parser = argparse.ArgumentParser(description="Build campaign_queue.csv from eligible prospects.")
     parser.add_argument("--dry-run", action="store_true", help="Print the row count without writing campaign_queue.csv.")
     args = parser.parse_args()

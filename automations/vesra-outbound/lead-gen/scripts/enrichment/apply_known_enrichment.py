@@ -6,10 +6,12 @@ import csv
 from datetime import date
 from pathlib import Path
 
+from core.monitoring import init_sentry
+from core.paths import data_dir
 from imports.import_hr_consultancies import HEADERS
 
 
-PROSPECTS_PATH = Path(__file__).resolve().parents[2] / "data" / "prospects.csv"
+PROSPECTS_PATH = data_dir() / "prospects.csv"
 TODAY = date.today().isoformat()
 
 
@@ -388,6 +390,7 @@ def score_priority(row: dict[str, str]) -> tuple[str, str]:
 
 
 def main() -> None:
+    init_sentry("daily-enrichment-known-values")
     with PROSPECTS_PATH.open(newline="", encoding="utf-8") as csv_file:
         rows = list(csv.DictReader(csv_file))
 

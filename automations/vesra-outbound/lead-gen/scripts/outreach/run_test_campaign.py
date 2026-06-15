@@ -12,6 +12,7 @@ from email.message import EmailMessage
 from pathlib import Path
 from urllib.parse import quote
 
+from core.monitoring import init_sentry
 from core.paths import BASE_DIR, config_dir, configured_dir
 from outreach.email_formatting import html_with_unsubscribe_link, plain_unsubscribe_footer
 from outreach.unsubscribe_tokens import unsubscribe_url
@@ -172,6 +173,7 @@ def send_messages(messages: list[EmailMessage], outbound_config: dict) -> None:
 
 
 def main() -> None:
+    init_sentry("test-campaign")
     parser = argparse.ArgumentParser(description="Run a safe multi-step test campaign to one test inbox.")
     parser.add_argument("--init", action="store_true", help="Initialise the test sequence state.")
     parser.add_argument("--reset", action="store_true", help="Reset existing test campaign state.")

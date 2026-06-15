@@ -89,6 +89,8 @@ VESRA_UNSUBSCRIBE_SECRET=<secret>
 VESRA_MAILGUN_WEBHOOK_TOKEN=<secret>
 VESRA_SMTP_USERNAME=<mailgun smtp username>
 VESRA_SMTP_APP_PASSWORD=<mailgun smtp password>
+SENTRY_DSN=<sentry project dsn>
+SENTRY_ENVIRONMENT=production
 PYTHONDONTWRITEBYTECODE=1
 ```
 
@@ -171,6 +173,11 @@ franchise               default 10 new email-backed rows/day
 
 Enrichment runs deterministic enrichment and rebuilds `campaign_queue.csv`.
 These jobs do not send production emails.
+
+Sentry is optional and controlled by `SENTRY_DSN`. Keep the DSN in
+`/etc/vesra/outbound.env`, never in Git. The Sentry setup deliberately uses
+`send_default_pii=false` and redacts common email/body fields before sending
+events.
 
 Optional runtime limits in `/etc/vesra/outbound.env`:
 

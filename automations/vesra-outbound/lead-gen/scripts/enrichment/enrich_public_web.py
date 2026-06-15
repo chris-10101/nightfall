@@ -15,6 +15,7 @@ from urllib.parse import unquote, urljoin, urlparse
 from urllib.request import Request, urlopen
 
 from core.csv_store import read_csv, write_csv_atomic
+from core.monitoring import init_sentry
 from core.paths import data_dir
 from imports.import_hr_consultancies import HEADERS
 
@@ -314,6 +315,7 @@ def append_note(existing: str, addition: str) -> str:
 
 
 def main() -> None:
+    init_sentry("daily-enrichment-public-web")
     parser = argparse.ArgumentParser(description="Enrich prospect rows from public company websites.")
     parser.add_argument("--limit", type=int, default=25, help="Maximum rows to attempt in this run.")
     parser.add_argument("--max-pages", type=int, default=3, help="Maximum public pages to fetch per company.")

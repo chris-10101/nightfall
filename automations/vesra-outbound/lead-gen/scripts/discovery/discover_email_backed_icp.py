@@ -13,6 +13,7 @@ from core.csv_store import read_csv, write_csv_atomic
 from discovery.discover_hr_consultancies import fetch_rss, root_domain
 from enrichment.enrich_public_web import best_email, candidate_pages, email_type, emails_from_links, fetch, parse_page
 from core.icp_profiles import active_profiles, normalize
+from core.monitoring import init_sentry
 from core.paths import data_dir
 from imports.import_hr_consultancies import HEADERS
 
@@ -179,6 +180,7 @@ def score_row(row: dict[str, str], positive_hits: list[str]) -> tuple[str, str]:
 
 
 def main() -> None:
+    init_sentry("daily-discovery")
     parser = argparse.ArgumentParser(description="Discover prospects for any active ICP, adding only rows with public emails.")
     parser.add_argument("--profile", action="append", help="ICP profile key to run. Defaults to all active profiles.")
     parser.add_argument("--max-new", type=int, default=20)

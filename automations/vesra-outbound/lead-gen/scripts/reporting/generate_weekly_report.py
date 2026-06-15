@@ -9,12 +9,14 @@ from weekly_reporter import (
     DEFAULT_RECIPIENT,
     friday_for_week,
     generate_report_markdown,
+    init_sentry,
     parse_week_start,
     save_and_optionally_send,
 )
 
 
 def main() -> None:
+    init_sentry("weekly-report")
     parser = argparse.ArgumentParser(description="Generate the Friday lead-gen weekly report.")
     parser.add_argument("--week-start", help="Sunday date for the reporting week, in YYYY-MM-DD format.")
     parser.add_argument("--output", help="Optional markdown output path.")
