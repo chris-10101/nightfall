@@ -13,6 +13,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 from core.paths import BASE_DIR, config_dir, configured_dir
+from outreach.email_formatting import html_with_unsubscribe_link, plain_unsubscribe_footer
 from outreach.unsubscribe_tokens import unsubscribe_url
 
 
@@ -140,8 +141,17 @@ def build_message(outbound_config: dict, recipient: str, subject: str, body: str
                 "unsubscribe_text",
                 "If this is not relevant, reply unsubscribe and I will not contact you again.",
             )
-            body = f"{body.rstrip()}\n\n{unsubscribe_text}\nUnsubscribe: {url_unsubscribe}"
+            body = f"{body.rstrip()}\n\n{plain_unsubscribe_footer(unsubscribe_text, url_unsubscribe)}"
     message.set_content(body)
+    if url_unsubscribe:
+        unsubscribe_text = outbound_config.get(
+            "unsubscribe_text",
+            "If this is not relevant, reply unsubscribe and I will not contact you again.",
+        )
+        message.add_alternative(
+            html_with_unsubscribe_link(body, unsubscribe_text, url_unsubscribe),
+            subtype="html",
+        )
     return message
 
 

@@ -142,7 +142,11 @@ class UnsubscribeFlowTest(unittest.TestCase):
         message = send_outreach_smtp.build_message(config, self.rows[0])
         self.assertIn("List-Unsubscribe-Post", message)
         self.assertTrue(message["List-Unsubscribe"].startswith(f"<{self.base_url}/unsubscribe?token="))
-        self.assertIn(f"Unsubscribe: {self.base_url}/unsubscribe?token=", message.get_content())
+        plain_body = message.get_body(("plain",)).get_content()
+        html_body = message.get_body(("html",)).get_content()
+        self.assertIn(f"Unsubscribe: {self.base_url}/unsubscribe?token=", plain_body)
+        self.assertIn(">unsubscribe here</a>", html_body)
+        self.assertIn(f'href="{self.base_url}/unsubscribe?token=', html_body)
 
         get_url = unsubscribe_url(config, self.rows[0])
         with urlopen(get_url, timeout=5) as response:

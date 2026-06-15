@@ -15,6 +15,7 @@ from zoneinfo import ZoneInfo
 from core.csv_store import read_csv, write_csv_atomic
 from core.eligibility_rules import dedupe_keys, evaluate_prospect, is_uk_working_hours
 from core.paths import config_dir, data_dir
+from outreach.email_formatting import html_with_unsubscribe_link, plain_unsubscribe_footer
 from outreach.unsubscribe_tokens import unsubscribe_url
 
 
@@ -59,6 +60,15 @@ def build_message(config: dict, row: dict[str, str]) -> EmailMessage:
         message["List-Unsubscribe"] = ", ".join(unsubscribe_targets)
     body = with_unsubscribe_text(config, row)
     message.set_content(body)
+    if url_unsubscribe:
+        unsubscribe_text = config.get(
+            "unsubscribe_text",
+            "If this is not relevant, reply unsubscribe and I will not contact you again.",
+        )
+        message.add_alternative(
+            html_with_unsubscribe_link(body, unsubscribe_text, url_unsubscribe),
+            subtype="html",
+        )
     return message
 
 
@@ -81,7 +91,7 @@ def with_unsubscribe_text(config: dict, row: dict[str, str]) -> str:
         return body
     if "Unsubscribe:" in body and unsubscribe_line:
         return f"{body.rstrip()}\n{unsubscribe_line}"
-    footer = f"{unsubscribe_text}\n{unsubscribe_line}".rstrip()
+    footer = plain_unsubscribe_footer(unsubscribe_text, unsubscribe_line.removeprefix("Unsubscribe: ").strip())
     return f"{body.rstrip()}\n\n{footer}"
 
 
