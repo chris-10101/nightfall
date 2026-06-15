@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Vesra enrichment and queue rebuild every UK weekday morning
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 08:45:00 Europe/London
+Persistent=true
+RandomizedDelaySec=10m
+Unit=vesra-daily-enrichment.service
+
+[Install]
+WantedBy=timers.target

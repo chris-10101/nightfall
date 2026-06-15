@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Vesra ICP discovery every UK weekday morning
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 07:30:00 Europe/London
+Persistent=true
+RandomizedDelaySec=10m
+Unit=vesra-daily-discovery.service
+
+[Install]
+WantedBy=timers.target

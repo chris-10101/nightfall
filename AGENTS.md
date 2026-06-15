@@ -138,6 +138,62 @@ https://www.getvesra.co.uk/unsubscribe
 
 The root hostname `getvesra.co.uk` has previously had DNS inconsistency, while `www.getvesra.co.uk` has resolved and served correctly through Caddy.
 
+### Daily Data Automations
+
+Systemd units for daily data work are stored in:
+
+```text
+automations/vesra-outbound/deploy/systemd/
+```
+
+Installed production units:
+
+```text
+vesra-daily-discovery.service
+vesra-daily-discovery.timer
+vesra-daily-enrichment.service
+vesra-daily-enrichment.timer
+```
+
+Schedule:
+
+```text
+vesra-daily-discovery.timer   Mon-Fri 07:30 Europe/London
+vesra-daily-enrichment.timer  Mon-Fri 08:45 Europe/London
+```
+
+Discovery runs both active ICPs with separate caps:
+
+```text
+hr_consultancy_partner  default 10 new email-backed rows/day
+franchise               default 10 new email-backed rows/day
+```
+
+Enrichment runs deterministic enrichment and rebuilds `campaign_queue.csv`.
+These jobs do not send production emails.
+
+Optional runtime limits in `/etc/vesra/outbound.env`:
+
+```text
+VESRA_DAILY_DISCOVERY_HR_LIMIT=10
+VESRA_DAILY_DISCOVERY_FRANCHISE_LIMIT=10
+VESRA_DAILY_DISCOVERY_MAX_PAGES=2
+VESRA_DAILY_ENRICH_LIMIT=50
+VESRA_DAILY_ENRICH_MAX_PAGES=2
+```
+
+Useful checks:
+
+```bash
+systemctl list-timers --all 'vesra-daily-*' --no-pager
+systemctl status vesra-daily-discovery.service --no-pager -l
+systemctl status vesra-daily-enrichment.service --no-pager -l
+journalctl -u vesra-daily-discovery.service -n 80 --no-pager
+journalctl -u vesra-daily-enrichment.service -n 80 --no-pager
+tail -n 80 /var/log/vesra/daily-discovery.log
+tail -n 80 /var/log/vesra/daily-enrichment.log
+```
+
 ### Production Safety Rules
 
 - Never send production prospect emails without explicit user approval.
