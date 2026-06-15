@@ -71,6 +71,7 @@ Live data and secrets are stored outside the Git checkout:
 /var/lib/vesra/lead-gen-data      # live CSV data/state
 /var/lib/vesra/reports            # generated reports
 /var/lib/vesra/outreach-batches   # generated outreach batches
+/var/lib/vesra/test-campaign      # internal test campaign state
 /etc/vesra/config                 # production config
 /etc/vesra/outbound.env           # secrets and runtime env
 ```
@@ -82,6 +83,8 @@ VESRA_LEAD_GEN_DATA_DIR=/var/lib/vesra/lead-gen-data
 VESRA_LEAD_GEN_CONFIG_DIR=/etc/vesra/config
 VESRA_LEAD_GEN_REPORT_DIR=/var/lib/vesra/reports
 VESRA_LEAD_GEN_BATCH_DIR=/var/lib/vesra/outreach-batches
+VESRA_LEAD_GEN_TEST_DIR=/var/lib/vesra/test-campaign
+VESRA_TEST_RECIPIENT=<internal test recipient>
 VESRA_UNSUBSCRIBE_SECRET=<secret>
 VESRA_MAILGUN_WEBHOOK_TOKEN=<secret>
 VESRA_SMTP_USERNAME=<mailgun smtp username>

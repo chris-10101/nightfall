@@ -12,12 +12,12 @@ from email.message import EmailMessage
 from pathlib import Path
 from urllib.parse import quote
 
+from core.paths import BASE_DIR, config_dir, configured_dir
 from outreach.unsubscribe_tokens import unsubscribe_url
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-CONFIG_DIR = BASE_DIR / "config"
-TEST_DIR = BASE_DIR / "tests"
+CONFIG_DIR = config_dir()
+TEST_DIR = configured_dir("VESRA_LEAD_GEN_TEST_DIR", BASE_DIR / "tests")
 OUTBOUND_CONFIG_PATH = CONFIG_DIR / "outbound_config.json"
 OUTBOUND_CONFIG_EXAMPLE_PATH = CONFIG_DIR / "outbound_config.example.json"
 TEST_CONFIG_PATH = CONFIG_DIR / "test_campaign_config.json"
@@ -68,6 +68,7 @@ def read_state() -> list[dict[str, str]]:
 
 
 def write_state(rows: list[dict[str, str]]) -> None:
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with STATE_PATH.open("w", newline="", encoding="utf-8") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=STATE_HEADERS)
         writer.writeheader()
@@ -167,6 +168,11 @@ def main() -> None:
     parser.add_argument("--send", action="store_true", help="Actually send due messages. Omit for dry-run.")
     parser.add_argument("--max-due", type=int, default=1, help="Maximum due messages to send in this run.")
     parser.add_argument("--recipient", help="Override test recipient. Prefer VESRA_TEST_RECIPIENT env var.")
+    parser.add_argument(
+        "--allow-reviewed-test-send",
+        action="store_true",
+        help="Allow this explicit test send even when production review_required_before_send is true.",
+    )
     args = parser.parse_args()
 
     outbound_config = load_outbound_config()
@@ -199,7 +205,7 @@ def main() -> None:
         print(f"Prepared {len(messages)} due test messages. No email sent.")
         return
 
-    if outbound_config.get("review_required_before_send", True):
+    if outbound_config.get("review_required_before_send", True) and not args.allow_reviewed_test_send:
         raise SystemExit("Config has review_required_before_send=true. Set it false only after reviewing the test.")
 
     try:
