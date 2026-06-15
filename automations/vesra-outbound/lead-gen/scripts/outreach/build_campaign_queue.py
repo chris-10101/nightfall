@@ -72,6 +72,17 @@ QUEUE_HEADERS = [
     "eligibility_status",
     "eligibility_reasons",
     "suppression_checked_at",
+    "lifecycle_state",
+    "agent_next_action",
+    "agent_next_action_at",
+    "agent_last_decision_at",
+    "agent_last_decision",
+    "agent_blocked_reason",
+    "agent_requires_review",
+    "agent_owner",
+    "campaign_step",
+    "campaign_step_due_at",
+    "last_agent_run_id",
 ]
 
 
@@ -290,6 +301,17 @@ def build_queue_rows() -> list[dict[str, str]]:
                 "source_url": prospect.get("source_url") or prospect.get("email_source_url") or prospect.get("website_url", ""),
                 "evidence_url": evidence_url(prospect),
                 "suppression_checked_at": TODAY,
+                "lifecycle_state": existing.get("lifecycle_state") or prospect.get("lifecycle_state", ""),
+                "agent_next_action": existing.get("agent_next_action") or prospect.get("agent_next_action", ""),
+                "agent_next_action_at": existing.get("agent_next_action_at") or prospect.get("agent_next_action_at", ""),
+                "agent_last_decision_at": existing.get("agent_last_decision_at") or prospect.get("agent_last_decision_at", ""),
+                "agent_last_decision": existing.get("agent_last_decision") or prospect.get("agent_last_decision", ""),
+                "agent_blocked_reason": existing.get("agent_blocked_reason") or prospect.get("agent_blocked_reason", ""),
+                "agent_requires_review": existing.get("agent_requires_review") or prospect.get("agent_requires_review", ""),
+                "agent_owner": existing.get("agent_owner") or prospect.get("agent_owner", ""),
+                "campaign_step": existing.get("campaign_step") or prospect.get("campaign_step", ""),
+                "campaign_step_due_at": existing.get("campaign_step_due_at") or prospect.get("campaign_step_due_at", ""),
+                "last_agent_run_id": existing.get("last_agent_run_id") or prospect.get("last_agent_run_id", ""),
             }
         )
         candidates.append(row)

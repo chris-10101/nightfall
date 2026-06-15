@@ -36,6 +36,7 @@ Recommended server paths:
 /opt/nightfall/automations/vesra-outbound      # deployed code
 /var/lib/vesra/lead-gen-data                   # live CSV data/state
 /var/lib/vesra/test-campaign                   # internal test campaign state
+/var/lib/vesra/orchestration-runs              # contact lifecycle run summaries
 /etc/vesra/outbound.env                        # secrets and API keys
 ```
 
@@ -47,6 +48,7 @@ VESRA_LEAD_GEN_CONFIG_DIR=/etc/vesra/config
 VESRA_LEAD_GEN_REPORT_DIR=/var/lib/vesra/reports
 VESRA_LEAD_GEN_BATCH_DIR=/var/lib/vesra/outreach-batches
 VESRA_LEAD_GEN_TEST_DIR=/var/lib/vesra/test-campaign
+VESRA_LEAD_GEN_ORCHESTRATION_DIR=/var/lib/vesra/orchestration-runs
 SENTRY_DSN=<sentry project dsn>
 SENTRY_ENVIRONMENT=production
 ```
@@ -62,8 +64,10 @@ Production schedule:
 ```text
 vesra-daily-discovery.timer   Mon-Fri 07:30 Europe/London
 vesra-daily-enrichment.timer  Mon-Fri 08:45 Europe/London
+vesra-daily-orchestrator.timer Mon-Fri 09:15 Europe/London
 ```
 
 Discovery adds email-backed rows for both active ICPs, capped by environment
-limits. Enrichment runs deterministic enrichment and rebuilds the campaign
-queue. These jobs do not send production emails.
+limits. Enrichment runs deterministic enrichment. The orchestrator owns the
+contact lifecycle, rebuilds the campaign queue, writes per-contact next actions,
+and stores JSON run summaries. These jobs do not send production emails.

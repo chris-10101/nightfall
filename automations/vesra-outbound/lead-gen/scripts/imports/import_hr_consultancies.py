@@ -45,6 +45,17 @@ HEADERS = [
     "last_researched_at",
     "contacted_at",
     "follow_up_at",
+    "lifecycle_state",
+    "agent_next_action",
+    "agent_next_action_at",
+    "agent_last_decision_at",
+    "agent_last_decision",
+    "agent_blocked_reason",
+    "agent_requires_review",
+    "agent_owner",
+    "campaign_step",
+    "campaign_step_due_at",
+    "last_agent_run_id",
 ]
 
 POSTCODE_RE = re.compile(r"([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})$", re.I)

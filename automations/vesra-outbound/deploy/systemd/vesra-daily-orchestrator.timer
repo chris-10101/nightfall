@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Vesra contact lifecycle orchestration every UK weekday morning
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 09:15:00 Europe/London
+Persistent=true
+RandomizedDelaySec=10m
+Unit=vesra-daily-orchestrator.service
+
+[Install]
+WantedBy=timers.target

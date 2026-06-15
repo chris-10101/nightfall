@@ -72,6 +72,7 @@ Live data and secrets are stored outside the Git checkout:
 /var/lib/vesra/reports            # generated reports
 /var/lib/vesra/outreach-batches   # generated outreach batches
 /var/lib/vesra/test-campaign      # internal test campaign state
+/var/lib/vesra/orchestration-runs # contact lifecycle run summaries
 /etc/vesra/config                 # production config
 /etc/vesra/outbound.env           # secrets and runtime env
 ```
@@ -84,6 +85,7 @@ VESRA_LEAD_GEN_CONFIG_DIR=/etc/vesra/config
 VESRA_LEAD_GEN_REPORT_DIR=/var/lib/vesra/reports
 VESRA_LEAD_GEN_BATCH_DIR=/var/lib/vesra/outreach-batches
 VESRA_LEAD_GEN_TEST_DIR=/var/lib/vesra/test-campaign
+VESRA_LEAD_GEN_ORCHESTRATION_DIR=/var/lib/vesra/orchestration-runs
 VESRA_TEST_RECIPIENT=<internal test recipient>
 VESRA_UNSUBSCRIBE_SECRET=<secret>
 VESRA_MAILGUN_WEBHOOK_TOKEN=<secret>
@@ -155,6 +157,8 @@ vesra-daily-discovery.service
 vesra-daily-discovery.timer
 vesra-daily-enrichment.service
 vesra-daily-enrichment.timer
+vesra-daily-orchestrator.service
+vesra-daily-orchestrator.timer
 ```
 
 Schedule:
@@ -162,6 +166,7 @@ Schedule:
 ```text
 vesra-daily-discovery.timer   Mon-Fri 07:30 Europe/London
 vesra-daily-enrichment.timer  Mon-Fri 08:45 Europe/London
+vesra-daily-orchestrator.timer Mon-Fri 09:15 Europe/London
 ```
 
 Discovery runs both active ICPs with separate caps:
@@ -171,8 +176,15 @@ hr_consultancy_partner  default 10 new email-backed rows/day
 franchise               default 10 new email-backed rows/day
 ```
 
-Enrichment runs deterministic enrichment and rebuilds `campaign_queue.csv`.
-These jobs do not send production emails.
+Enrichment runs deterministic enrichment. The orchestrator owns the contact
+lifecycle, rebuilds `campaign_queue.csv`, writes lifecycle columns back to
+`prospects.csv` and `campaign_queue.csv`, and stores a JSON run summary under
+`/var/lib/vesra/orchestration-runs`.
+
+The lifecycle orchestrator makes deterministic next-action decisions such as
+`enrich_public_email`, `build_campaign_queue`, `review_campaign_copy`,
+`prepare_follow_up_review`, `review_data_quality`, or `none`. These jobs do
+not send production emails.
 
 Sentry is optional and controlled by `SENTRY_DSN`. Keep the DSN in
 `/etc/vesra/outbound.env`, never in Git. The Sentry setup deliberately uses
@@ -195,10 +207,13 @@ Useful checks:
 systemctl list-timers --all 'vesra-daily-*' --no-pager
 systemctl status vesra-daily-discovery.service --no-pager -l
 systemctl status vesra-daily-enrichment.service --no-pager -l
+systemctl status vesra-daily-orchestrator.service --no-pager -l
 journalctl -u vesra-daily-discovery.service -n 80 --no-pager
 journalctl -u vesra-daily-enrichment.service -n 80 --no-pager
+journalctl -u vesra-daily-orchestrator.service -n 80 --no-pager
 tail -n 80 /var/log/vesra/daily-discovery.log
 tail -n 80 /var/log/vesra/daily-enrichment.log
+tail -n 80 /var/log/vesra/daily-orchestrator.log
 ```
 
 ### Production Safety Rules
