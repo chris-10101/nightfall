@@ -18,10 +18,8 @@ def load_tenant(tenant: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def legacy_working_dir(config: dict) -> Path:
-    value = config.get("legacy_automation_path", "")
-    if not value:
-        raise SystemExit("Tenant has no legacy_automation_path.")
+def tenant_working_dir(config: dict) -> Path:
+    value = config.get("working_directory", ".")
     path = Path(value)
     if path.is_absolute():
         return path
@@ -34,7 +32,7 @@ def execute(tenant: str, tool_name: str, args: list[str]) -> int:
     if tool_name not in tools:
         available = ", ".join(sorted(tools))
         raise SystemExit(f"Unknown tool {tool_name!r} for tenant {tenant}. Available: {available}")
-    cwd = legacy_working_dir(config)
+    cwd = tenant_working_dir(config)
     if not cwd.exists():
         raise SystemExit(f"Tenant working directory does not exist: {cwd}")
     command = list(tools[tool_name]) + args

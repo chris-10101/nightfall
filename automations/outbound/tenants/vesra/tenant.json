@@ -2,7 +2,7 @@
   "tenant_id": "vesra",
   "display_name": "Vesra",
   "description": "Vesra outbound campaigns for partner and operational HR platform ICPs.",
-  "legacy_automation_path": "../vesra-outbound",
+  "working_directory": ".",
   "runtime": {
     "env_file": "/etc/vesra/outbound.env",
     "data_dir": "/var/lib/vesra/lead-gen-data",

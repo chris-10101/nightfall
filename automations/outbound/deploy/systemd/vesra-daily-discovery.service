@@ -5,7 +5,7 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-WorkingDirectory=/opt/nightfall/automations/vesra-outbound
+WorkingDirectory=/opt/nightfall/automations/outbound
 EnvironmentFile=/etc/vesra/outbound.env
 ExecStartPre=/usr/bin/mkdir -p /var/log/vesra
 ExecStart=/bin/bash -lc 'set -euo pipefail; python3 lead-gen/scripts/discovery/discover_email_backed_icp.py --profile hr_consultancy_partner --max-new "${VESRA_DAILY_DISCOVERY_HR_LIMIT:-10}" --max-pages "${VESRA_DAILY_DISCOVERY_MAX_PAGES:-2}" --checkpoint; python3 lead-gen/scripts/discovery/discover_email_backed_icp.py --profile franchise --max-new "${VESRA_DAILY_DISCOVERY_FRANCHISE_LIMIT:-10}" --max-pages "${VESRA_DAILY_DISCOVERY_MAX_PAGES:-2}" --checkpoint'

@@ -46,7 +46,7 @@ def init_sentry(job_name: str) -> None:
         traces_sample_rate=0.0,
         before_send=before_send,
     )
-    sentry_sdk.set_tag("automation", "vesra-outbound")
+    sentry_sdk.set_tag("automation", "nightfall-outbound")
     sentry_sdk.set_tag("job", job_name)
 
 

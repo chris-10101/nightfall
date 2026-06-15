@@ -5,7 +5,7 @@ After=network-online.target vesra-daily-orchestrator.service
 
 [Service]
 Type=oneshot
-WorkingDirectory=/opt/nightfall/automations/vesra-outbound
+WorkingDirectory=/opt/nightfall/automations/outbound
 EnvironmentFile=/etc/vesra/outbound.env
 ExecStartPre=/usr/bin/mkdir -p /var/log/vesra
 ExecStart=/bin/bash -lc 'set -euo pipefail; python3 lead-gen/scripts/outreach/send_agent_approved.py --limit "${VESRA_AGENT_SEND_LIMIT:-5}" --send'

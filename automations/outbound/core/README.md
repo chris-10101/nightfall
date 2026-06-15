@@ -2,10 +2,10 @@
 
 Shared outbound engine code belongs here.
 
-The current first migration keeps Vesra production running from
-`automations/vesra-outbound` and introduces `automations/outbound` as the
-canonical tenant/campaign structure. The next extraction step is to move shared
-Python modules here and leave compatibility wrappers under `vesra-outbound`.
+The current stable runtime lives under `automations/outbound/lead-gen` so the
+production jobs are self-contained in the canonical outbound tree. Future
+changes should move reusable Python modules here while keeping command wrappers
+stable for existing services and agent tools.
 
 Core responsibilities:
 

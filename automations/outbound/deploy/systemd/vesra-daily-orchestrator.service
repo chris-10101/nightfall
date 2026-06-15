@@ -5,7 +5,7 @@ After=network-online.target vesra-daily-enrichment.service
 
 [Service]
 Type=oneshot
-WorkingDirectory=/opt/nightfall/automations/vesra-outbound
+WorkingDirectory=/opt/nightfall/automations/outbound
 EnvironmentFile=/etc/vesra/outbound.env
 ExecStartPre=/usr/bin/mkdir -p /var/log/vesra /var/lib/vesra/orchestration-runs
 ExecStart=/bin/bash -lc 'set -euo pipefail; python3 lead-gen/scripts/orchestration/run_daily_orchestrator.py --rebuild-queue --summary'

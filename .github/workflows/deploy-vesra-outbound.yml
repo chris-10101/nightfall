@@ -7,7 +7,6 @@ on:
     paths:
       - ".github/workflows/deploy-vesra-outbound.yml"
       - "automations/outbound/**"
-      - "automations/vesra-outbound/**"
 
   workflow_dispatch:
 
@@ -24,7 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run local checks
-        working-directory: automations/vesra-outbound
+        working-directory: automations/outbound
         run: |
           python3 --version
           python3 lead-gen/tests/test_unsubscribe_flow.py
@@ -59,7 +58,15 @@ jobs:
         run: |
           ssh -i ~/.ssh/nightfall_deploy -o IdentitiesOnly=yes "$DROPLET_USER@$DROPLET_HOST" '
             set -e
-            cd /opt/nightfall/automations/vesra-outbound
+            cd /opt/nightfall/automations/outbound
+            if grep -q "/opt/nightfall/automations/vesra-outbound" /etc/vesra/outbound.env; then
+              cp /etc/vesra/outbound.env /etc/vesra/outbound.env.bak
+              sed -i "s#/opt/nightfall/automations/vesra-outbound#/opt/nightfall/automations/outbound#g" /etc/vesra/outbound.env
+            fi
+            cp deploy/systemd/vesra-*.service /etc/systemd/system/
+            cp deploy/systemd/vesra-*.timer /etc/systemd/system/
+            systemctl daemon-reload
+            systemctl enable vesra-outbound-webhook.service vesra-daily-discovery.timer vesra-daily-enrichment.timer vesra-daily-orchestrator.timer vesra-agent-send-approved.timer
             set -a
             . /etc/vesra/outbound.env
             set +a

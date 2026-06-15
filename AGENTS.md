@@ -9,6 +9,8 @@ Canonical reusable outbound structure:
 ```text
 automations/outbound/
   core/
+  lead-gen/
+  deploy/systemd/
   tools/
   systemd/
   tenants/
@@ -18,16 +20,15 @@ Use `automations/outbound/tenants/<tenant_id>/` for new businesses and
 `automations/outbound/tenants/<tenant_id>/campaigns/<campaign_id>/` for new
 ICPs/campaigns.
 
-Vesra production still runs through `automations/vesra-outbound/` as a
-compatibility implementation. Do not remove or rename that path until the DO
-systemd units and webhook service have been explicitly migrated.
+Vesra production runs from `automations/outbound/`. Do not recreate the old
+compatibility folder; it has been extracted into the canonical outbound tree.
 
 ## Vesra Outbound Deployment
 
 The Vesra outbound automation lives at:
 
 ```text
-automations/vesra-outbound/
+automations/outbound/
 ```
 
 Production runs on the DigitalOcean droplet:
@@ -51,7 +52,6 @@ It runs automatically when changes are pushed to `main` under:
 ```text
 .github/workflows/deploy-vesra-outbound.yml
 automations/outbound/**
-automations/vesra-outbound/**
 ```
 
 It can also be run manually from GitHub Actions with `workflow_dispatch`.
@@ -81,12 +81,6 @@ The workflow syncs the repository to:
 So the deployed Vesra code path is:
 
 ```text
-/opt/nightfall/automations/vesra-outbound
-```
-
-The deployed reusable outbound path is:
-
-```text
 /opt/nightfall/automations/outbound
 ```
 
@@ -113,7 +107,7 @@ VESRA_LEAD_GEN_REPORT_DIR=/var/lib/vesra/reports
 VESRA_LEAD_GEN_BATCH_DIR=/var/lib/vesra/outreach-batches
 VESRA_LEAD_GEN_TEST_DIR=/var/lib/vesra/test-campaign
 VESRA_LEAD_GEN_ORCHESTRATION_DIR=/var/lib/vesra/orchestration-runs
-VESRA_LEAD_GEN_KB_DIR=/opt/nightfall/automations/vesra-outbound/lead-gen/docs
+VESRA_LEAD_GEN_KB_DIR=/opt/nightfall/automations/outbound/lead-gen/docs
 VESRA_TEST_RECIPIENT=<internal test recipient>
 VESRA_AUTO_SEND_ENABLED=false
 VESRA_AGENT_SEND_LIMIT=5
@@ -177,7 +171,7 @@ The root hostname `getvesra.co.uk` has previously had DNS inconsistency, while `
 Systemd units for daily data work are stored in:
 
 ```text
-automations/vesra-outbound/deploy/systemd/
+automations/outbound/deploy/systemd/
 ```
 
 Installed production units:
