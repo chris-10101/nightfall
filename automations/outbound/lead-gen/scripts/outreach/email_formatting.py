@@ -1,21 +1,29 @@
 from html import escape
 
 
+UNSUBSCRIBE_MARKERS = (
+    "reply unsubscribe",
+    "unsubscribe:",
+    "unsubscribe here",
+    "not contact you again",
+)
+
+
 def plain_unsubscribe_footer(unsubscribe_text: str, unsubscribe_target: str) -> str:
     if not unsubscribe_target:
         return unsubscribe_text.strip()
-    return f"{unsubscribe_text.strip()}\nUnsubscribe: {unsubscribe_target}"
+    return f"If this is not relevant, you can unsubscribe here and I will not contact you again.\nUnsubscribe: {unsubscribe_target}"
 
 
-def strip_plain_unsubscribe_footer(body: str) -> str:
-    lines = body.rstrip().splitlines()
-    while lines and not lines[-1].strip():
-        lines.pop()
-    if lines and lines[-1].strip().lower().startswith("unsubscribe:"):
-        lines.pop()
-    while lines and not lines[-1].strip():
-        lines.pop()
-    return "\n".join(lines).rstrip()
+def strip_existing_unsubscribe_text(body: str) -> str:
+    paragraphs = body.rstrip().split("\n\n")
+    kept = []
+    for paragraph in paragraphs:
+        normalized = " ".join(paragraph.lower().split())
+        if any(marker in normalized for marker in UNSUBSCRIBE_MARKERS):
+            continue
+        kept.append(paragraph.strip("\n"))
+    return "\n\n".join(paragraph for paragraph in kept if paragraph.strip()).rstrip()
 
 
 def text_to_html_paragraphs(text: str) -> str:
@@ -27,7 +35,7 @@ def text_to_html_paragraphs(text: str) -> str:
 
 
 def html_with_unsubscribe_link(body: str, unsubscribe_text: str, unsubscribe_url: str) -> str:
-    base_body = strip_plain_unsubscribe_footer(body)
+    base_body = strip_existing_unsubscribe_text(body)
     html = text_to_html_paragraphs(base_body)
     if not unsubscribe_url:
         return html

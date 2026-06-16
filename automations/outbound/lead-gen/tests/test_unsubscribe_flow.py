@@ -15,6 +15,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from core.csv_store import write_csv_atomic
 from outreach import send_outreach_smtp, suppression
+from outreach import run_test_campaign
 from outreach.unsubscribe_server import UnsubscribeHandler
 from outreach.unsubscribe_tokens import unsubscribe_url
 
@@ -130,7 +131,7 @@ class UnsubscribeFlowTest(unittest.TestCase):
             "unsubscribe_base_url": f"{self.base_url}/unsubscribe",
             "unsubscribe_secret_env": "VESRA_UNSUBSCRIBE_SECRET",
             "unsubscribe_subject": "Unsubscribe",
-            "unsubscribe_text": "If this is not relevant, reply unsubscribe and I will not contact you again.",
+            "unsubscribe_text": "If this is not relevant, you can unsubscribe here and I will not contact you again.",
         }
 
     def read_rows(self, path: Path) -> list[dict[str, str]]:
@@ -147,6 +148,8 @@ class UnsubscribeFlowTest(unittest.TestCase):
         self.assertIn(f"Unsubscribe: {self.base_url}/unsubscribe?token=", plain_body)
         self.assertIn(">unsubscribe here</a>", html_body)
         self.assertIn(f'href="{self.base_url}/unsubscribe?token=', html_body)
+        self.assertEqual(plain_body.count("If this is not relevant"), 1)
+        self.assertEqual(html_body.count("If this is not relevant"), 1)
 
         get_url = unsubscribe_url(config, self.rows[0])
         with urlopen(get_url, timeout=5) as response:
@@ -196,6 +199,22 @@ class UnsubscribeFlowTest(unittest.TestCase):
         self.assertEqual(len(replies), 1)
         self.assertEqual(replies[0]["classification"], "unsubscribe")
         self.assertEqual(replies[0]["matched_lead_id"], "lead-reply")
+
+    def test_test_campaign_body_does_not_duplicate_unsubscribe_wording(self) -> None:
+        body = (
+            "Hi Chris,\n\n"
+            "Test body.\n\n"
+            "If this is not relevant, reply unsubscribe and I will not contact you again.\n\n"
+            "Best,\nChris"
+        )
+        message = run_test_campaign.build_message(self.config(), self.rows[0]["email"], "Test subject", body, "1")
+        plain_body = message.get_body(("plain",)).get_content()
+        html_body = message.get_body(("html",)).get_content()
+        self.assertEqual(plain_body.count("If this is not relevant"), 1)
+        self.assertNotIn("reply unsubscribe", plain_body)
+        self.assertIn(f"Unsubscribe: {self.base_url}/unsubscribe?token=", plain_body)
+        self.assertEqual(html_body.count("If this is not relevant"), 1)
+        self.assertIn(">unsubscribe here</a>", html_body)
 
 
 if __name__ == "__main__":

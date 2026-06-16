@@ -15,7 +15,7 @@
   "unsubscribe_base_url": "https://getvesra.co.uk/unsubscribe",
   "unsubscribe_secret_env": "VESRA_UNSUBSCRIBE_SECRET",
   "unsubscribe_subject": "Unsubscribe",
-  "unsubscribe_text": "If this is not relevant, reply unsubscribe and I will not contact you again.",
+  "unsubscribe_text": "If this is not relevant, you can unsubscribe here and I will not contact you again.",
   "smtp": {
     "host": "smtp.gmail.com",
     "port": 587,

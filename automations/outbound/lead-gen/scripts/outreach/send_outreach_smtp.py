@@ -16,7 +16,7 @@ from core.csv_store import read_csv, write_csv_atomic
 from core.eligibility_rules import dedupe_keys, evaluate_prospect, is_uk_working_hours
 from core.monitoring import init_sentry
 from core.paths import config_dir, data_dir
-from outreach.email_formatting import html_with_unsubscribe_link, plain_unsubscribe_footer
+from outreach.email_formatting import html_with_unsubscribe_link, plain_unsubscribe_footer, strip_existing_unsubscribe_text
 from outreach.unsubscribe_tokens import unsubscribe_url
 
 
@@ -75,7 +75,7 @@ def build_message(config: dict, row: dict[str, str]) -> EmailMessage:
 
 
 def with_unsubscribe_text(config: dict, row: dict[str, str]) -> str:
-    body = row["draft_body"]
+    body = strip_existing_unsubscribe_text(row["draft_body"])
     unsubscribe_text = config.get(
         "unsubscribe_text",
         "If this is not relevant, reply unsubscribe and I will not contact you again.",
@@ -89,10 +89,6 @@ def with_unsubscribe_text(config: dict, row: dict[str, str]) -> str:
             unsubscribe_line = f"Unsubscribe: mailto:{unsubscribe_mailto}?subject=Unsubscribe"
         else:
             unsubscribe_line = ""
-    if unsubscribe_line and unsubscribe_line in body:
-        return body
-    if "Unsubscribe:" in body and unsubscribe_line:
-        return f"{body.rstrip()}\n{unsubscribe_line}"
     footer = plain_unsubscribe_footer(unsubscribe_text, unsubscribe_line.removeprefix("Unsubscribe: ").strip())
     return f"{body.rstrip()}\n\n{footer}"
 
