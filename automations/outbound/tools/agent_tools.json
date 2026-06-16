@@ -71,6 +71,15 @@
       "requires_review": false,
       "can_send_email": false,
       "allowed_args": ["--rebuild-queue", "--summary"]
+    },
+    {
+      "name": "run_agentic_orchestrator",
+      "description": "Plan each contact end-to-end, select safe tools, record reasoning, and execute capped non-email actions.",
+      "command": ["python3", "lead-gen/scripts/orchestration/run_agentic_orchestrator.py"],
+      "mutates_state": true,
+      "requires_review": false,
+      "can_send_email": false,
+      "allowed_args": ["--rebuild-queue", "--execute-safe-tools", "--dry-run-tools", "--max-contacts", "--max-tool-runs", "--summary"]
     }
   ]
 }

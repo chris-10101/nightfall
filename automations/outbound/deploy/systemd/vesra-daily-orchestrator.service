@@ -1,5 +1,5 @@
 [Unit]
-Description=Vesra daily contact lifecycle orchestrator
+Description=Vesra daily agentic contact orchestrator
 Wants=network-online.target
 After=network-online.target vesra-daily-enrichment.service
 
@@ -8,6 +8,6 @@ Type=oneshot
 WorkingDirectory=/opt/nightfall/automations/outbound
 EnvironmentFile=/etc/vesra/outbound.env
 ExecStartPre=/usr/bin/mkdir -p /var/log/vesra /var/lib/vesra/orchestration-runs
-ExecStart=/bin/bash -lc 'set -euo pipefail; python3 lead-gen/scripts/orchestration/run_daily_orchestrator.py --rebuild-queue --summary'
+ExecStart=/bin/bash -lc 'set -euo pipefail; python3 lead-gen/scripts/orchestration/run_agentic_orchestrator.py --rebuild-queue --execute-safe-tools --max-tool-runs "${VESRA_AGENTIC_MAX_TOOL_RUNS:-3}" --summary'
 StandardOutput=append:/var/log/vesra/daily-orchestrator.log
 StandardError=append:/var/log/vesra/daily-orchestrator.log

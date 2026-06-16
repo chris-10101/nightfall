@@ -208,10 +208,15 @@ lifecycle, rebuilds `campaign_queue.csv`, writes lifecycle columns back to
 `prospects.csv` and `campaign_queue.csv`, and stores a JSON run summary under
 `/var/lib/vesra/orchestration-runs`.
 
-The lifecycle orchestrator makes deterministic next-action decisions such as
-`enrich_public_email`, `build_campaign_queue`, `review_campaign_copy`,
-`prepare_follow_up_review`, `review_data_quality`, or `none`. These jobs do
-not send production emails.
+The daily orchestrator runs `lead-gen/scripts/orchestration/run_agentic_orchestrator.py`.
+It first refreshes deterministic lifecycle state, then plans each contact's next
+step, selects a registered tool, records reasoning into the CSVs and
+`agent_events.csv`, and writes JSON summaries under
+`/var/lib/vesra/orchestration-runs`.
+
+Agentic tool execution is capped by `VESRA_AGENTIC_MAX_TOOL_RUNS` and limited to
+non-email, non-review tools. The orchestrator must not send production email
+directly.
 
 The approved-send worker is installed but guarded. It sends only rows whose
 `campaign_status` is `approved_to_send` or `follow_up_approved`, only when
@@ -241,6 +246,8 @@ VESRA_DAILY_DISCOVERY_FRANCHISE_LIMIT=10
 VESRA_DAILY_DISCOVERY_MAX_PAGES=2
 VESRA_DAILY_ENRICH_LIMIT=50
 VESRA_DAILY_ENRICH_MAX_PAGES=2
+VESRA_AGENTIC_MAX_CONTACTS=500
+VESRA_AGENTIC_MAX_TOOL_RUNS=3
 ```
 
 Useful checks:

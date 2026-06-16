@@ -70,6 +70,18 @@ python3 automations/outbound/tools/run_tenant_tool.py --tenant vesra orchestrate
 For Vesra, this delegates to the stable runtime under
 `automations/outbound/lead-gen`. New tenants can use the same interface.
 
+## Agentic Orchestration
+
+Vesra's daily orchestrator uses:
+
+```bash
+python3 lead-gen/scripts/orchestration/run_agentic_orchestrator.py --rebuild-queue --execute-safe-tools --summary
+```
+
+It refreshes lifecycle state, chooses a registered tool per contact, records the
+reasoning trail, and executes only capped non-email/non-review tools. Email
+sending remains behind the approved-send worker and `VESRA_AUTO_SEND_ENABLED`.
+
 ## Deployment
 
 The GitHub Actions workflow deploys the whole repository to `/opt/nightfall`.

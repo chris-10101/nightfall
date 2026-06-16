@@ -26,6 +26,7 @@ jobs:
         working-directory: automations/outbound
         run: |
           python3 --version
+          python3 lead-gen/tests/test_agentic_orchestrator.py
           python3 lead-gen/tests/test_unsubscribe_flow.py
           python3 -m compileall -q lead-gen/scripts lead-gen/tests
           python3 lead-gen/scripts/maintenance/validate_icp_profiles.py
@@ -71,6 +72,7 @@ jobs:
             set -a
             . /etc/vesra/outbound.env
             set +a
+            python3 lead-gen/tests/test_agentic_orchestrator.py
             python3 lead-gen/tests/test_unsubscribe_flow.py
             python3 -m compileall -q lead-gen/scripts lead-gen/tests
             python3 lead-gen/scripts/maintenance/validate_icp_profiles.py

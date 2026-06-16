@@ -17,7 +17,8 @@
   "tools": {
     "discover": ["python3", "lead-gen/scripts/discovery/discover_email_backed_icp.py"],
     "enrich": ["python3", "lead-gen/scripts/enrichment/enrich_public_web.py"],
-    "orchestrate": ["python3", "lead-gen/scripts/orchestration/run_daily_orchestrator.py"],
+    "orchestrate": ["python3", "lead-gen/scripts/orchestration/run_agentic_orchestrator.py"],
+    "plan-lifecycle": ["python3", "lead-gen/scripts/orchestration/run_daily_orchestrator.py"],
     "send-approved": ["python3", "lead-gen/scripts/outreach/send_agent_approved.py"],
     "kb": ["python3", "lead-gen/scripts/kb/retrieve_kb.py"],
     "weekly-plan": ["python3", "lead-gen/scripts/reporting/generate_weekly_plan.py"],
