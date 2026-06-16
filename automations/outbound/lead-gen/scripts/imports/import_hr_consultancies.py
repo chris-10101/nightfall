@@ -6,9 +6,6 @@ import csv
 import re
 from pathlib import Path
 
-import openpyxl
-
-
 SOURCE_PATH = Path("/Users/chrissmith/Desktop/HR Consultancies Prospect List.xlsx")
 OUTPUT_PATH = Path(__file__).resolve().parents[2] / "data" / "prospects.csv"
 
@@ -78,6 +75,8 @@ def value(row: tuple, index: int) -> str:
 
 
 def main() -> None:
+    import openpyxl
+
     workbook = openpyxl.load_workbook(SOURCE_PATH, read_only=True, data_only=True)
     sheet = workbook["HR Consultancies"]
 
