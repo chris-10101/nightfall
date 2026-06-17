@@ -8,7 +8,18 @@ from typing import Iterator
 
 LEGACY_ROW_TABLE = "nightfall_csv_rows"
 LEGACY_HEADER_TABLE = "nightfall_csv_headers"
-INTERNAL_COLUMNS = {"_nightfall_row_key", "_nightfall_row_index", "_nightfall_updated_at"}
+ORGANISATIONS_TABLE = "organisations"
+ROW_KEY_COLUMN = "nightfall_row_key"
+ROW_INDEX_COLUMN = "nightfall_row_index"
+UPDATED_AT_COLUMN = "nightfall_updated_at"
+ORGANISATION_ID_COLUMN = "organisation_id"
+OLD_INTERNAL_COLUMN_MAP = {
+    "_nightfall_row_key": ROW_KEY_COLUMN,
+    "_nightfall_row_index": ROW_INDEX_COLUMN,
+    "_nightfall_updated_at": UPDATED_AT_COLUMN,
+}
+INTERNAL_COLUMNS = {ROW_KEY_COLUMN, ROW_INDEX_COLUMN, UPDATED_AT_COLUMN}
+SYSTEM_TABLES = {LEGACY_ROW_TABLE, LEGACY_HEADER_TABLE, ORGANISATIONS_TABLE}
 IDENTIFIER_RE = re.compile(r"[^a-zA-Z0-9_]+")
 
 
@@ -26,6 +37,18 @@ def database_url() -> str:
     if not value:
         raise RuntimeError("DATABASE_URL is required when database storage is enabled.")
     return value
+
+
+def default_organisation_id() -> int:
+    value = (os.environ.get("NIGHTFALL_ORGANISATION_ID") or os.environ.get("VESRA_ORGANISATION_ID") or "1").strip()
+    try:
+        return int(value)
+    except ValueError:
+        return 1
+
+
+def default_organisation_name() -> str:
+    return (os.environ.get("NIGHTFALL_ORGANISATION_NAME") or os.environ.get("VESRA_ORGANISATION_NAME") or "vesra").strip() or "vesra"
 
 
 def dataset_name(path: Path) -> str:
@@ -55,10 +78,9 @@ def row_key(dataset: str, row: dict[str, str], index: int) -> str:
         "test_campaign_state": ("step", "recipient"),
     }
     parts = [row.get(key, "").strip().lower() for key in preferred_keys.get(dataset, ())]
-    value = "|".join(part for part in parts if part)
-    if value:
-        return value[:191]
-    return f"{index:08d}"
+    value = "|".join(part for part in parts if part) or f"{index:08d}"
+    organisation_id = str(row.get(ORGANISATION_ID_COLUMN) or default_organisation_id()).strip() or "1"
+    return f"{organisation_id}|{value}"[:191]
 
 
 def unique_row_keys(dataset: str, rows: list[dict[str, str]]) -> list[str]:
@@ -95,6 +117,7 @@ def engine():
 def connection() -> Iterator:
     db_engine = engine()
     with db_engine.begin() as conn:
+        ensure_base_schema(conn)
         yield conn
 
 
@@ -115,6 +138,52 @@ def user_columns(conn, table: str) -> list[str]:
     return [column for column in current_columns(conn, table) if column not in INTERNAL_COLUMNS]
 
 
+def ensure_base_schema(conn) -> None:
+    _, _, text = load_sqlalchemy()
+    conn.execute(
+        text(
+            f"""
+            CREATE TABLE IF NOT EXISTS {quote_identifier(ORGANISATIONS_TABLE)} (
+              id INTEGER NOT NULL PRIMARY KEY,
+              organisation_name VARCHAR(191) NOT NULL UNIQUE,
+              created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+    )
+    organisation_id = default_organisation_id()
+    organisation_name = default_organisation_name()
+    existing = conn.execute(
+        text(f"SELECT id FROM {quote_identifier(ORGANISATIONS_TABLE)} WHERE id = :id"),
+        {"id": organisation_id},
+    ).first()
+    if not existing:
+        conn.execute(
+            text(
+                f"""
+                INSERT INTO {quote_identifier(ORGANISATIONS_TABLE)} (id, organisation_name)
+                VALUES (:id, :organisation_name)
+                """
+            ),
+            {"id": organisation_id, "organisation_name": organisation_name},
+        )
+
+
+def rename_legacy_internal_columns(conn, dataset: str) -> None:
+    _, _, text = load_sqlalchemy()
+    columns = set(current_columns(conn, dataset))
+    for old_name, new_name in OLD_INTERNAL_COLUMN_MAP.items():
+        if old_name in columns and new_name not in columns:
+            conn.execute(
+                text(
+                    f"ALTER TABLE {quote_identifier(dataset)} RENAME COLUMN "
+                    f"{quote_identifier(old_name)} TO {quote_identifier(new_name)}"
+                )
+            )
+            columns.remove(old_name)
+            columns.add(new_name)
+
+
 def ensure_dataset_table(conn, dataset: str, headers: list[str]) -> None:
     _, _, text = load_sqlalchemy()
     table = quote_identifier(dataset)
@@ -122,15 +191,33 @@ def ensure_dataset_table(conn, dataset: str, headers: list[str]) -> None:
         text(
             f"""
             CREATE TABLE IF NOT EXISTS {table} (
-              _nightfall_row_key VARCHAR(191) NOT NULL,
-              _nightfall_row_index INTEGER NOT NULL,
-              _nightfall_updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              PRIMARY KEY (_nightfall_row_key)
+              {quote_identifier(ROW_KEY_COLUMN)} VARCHAR(191) NOT NULL,
+              {quote_identifier(ROW_INDEX_COLUMN)} INTEGER NOT NULL,
+              {quote_identifier(ORGANISATION_ID_COLUMN)} INTEGER NOT NULL DEFAULT 1,
+              {quote_identifier(UPDATED_AT_COLUMN)} TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY ({quote_identifier(ROW_KEY_COLUMN)})
             )
             """
         )
     )
+    rename_legacy_internal_columns(conn, dataset)
     existing = set(current_columns(conn, dataset))
+    if ORGANISATION_ID_COLUMN not in existing:
+        conn.execute(
+            text(
+                f"ALTER TABLE {table} ADD COLUMN {quote_identifier(ORGANISATION_ID_COLUMN)} "
+                f"INTEGER NOT NULL DEFAULT {default_organisation_id()}"
+            )
+        )
+        existing.add(ORGANISATION_ID_COLUMN)
+    for internal_name, definition in (
+        (ROW_KEY_COLUMN, "VARCHAR(191)"),
+        (ROW_INDEX_COLUMN, "INTEGER"),
+        (UPDATED_AT_COLUMN, "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+    ):
+        if internal_name not in existing:
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {quote_identifier(internal_name)} {definition}"))
+            existing.add(internal_name)
     for header in normalized_headers(headers):
         if header in INTERNAL_COLUMNS or header in existing:
             continue
@@ -161,6 +248,7 @@ def read_rows(path: Path) -> list[dict[str, str]]:
         if not table_exists(conn, dataset):
             legacy_rows = read_legacy_rows(conn, dataset)
             return legacy_rows
+        ensure_dataset_table(conn, dataset, [])
         columns = user_columns(conn, dataset)
         if not columns:
             return []
@@ -170,7 +258,7 @@ def read_rows(path: Path) -> list[dict[str, str]]:
                 f"""
                 SELECT {select_columns}
                 FROM {quote_identifier(dataset)}
-                ORDER BY _nightfall_row_index ASC, _nightfall_row_key ASC
+                ORDER BY {quote_identifier(ROW_INDEX_COLUMN)} ASC, {quote_identifier(ROW_KEY_COLUMN)} ASC
                 """
             )
         )
@@ -183,9 +271,15 @@ def read_rows(path: Path) -> list[dict[str, str]]:
 def write_rows(path: Path, rows: list[dict[str, str]], headers: list[str]) -> None:
     _, _, text = load_sqlalchemy()
     dataset = dataset_name(path)
-    clean_headers = normalized_headers(headers or sorted({key for row in rows for key in row}))
+    inferred_headers = sorted({key for row in rows for key in row})
+    clean_headers = normalized_headers(headers or inferred_headers)
+    if ORGANISATION_ID_COLUMN not in clean_headers:
+        clean_headers.append(ORGANISATION_ID_COLUMN)
     clean_rows = [
-        {header: str(row.get(header, "") or "") for header in clean_headers}
+        {
+            header: str(row.get(header, default_organisation_id() if header == ORGANISATION_ID_COLUMN else "") or "")
+            for header in clean_headers
+        }
         for row in rows
     ]
     with connection() as conn:
@@ -194,7 +288,7 @@ def write_rows(path: Path, rows: list[dict[str, str]], headers: list[str]) -> No
         if not clean_rows:
             return
         keys = unique_row_keys(dataset, clean_rows)
-        data_columns = ["_nightfall_row_key", "_nightfall_row_index", *clean_headers]
+        data_columns = [ROW_KEY_COLUMN, ROW_INDEX_COLUMN, *clean_headers]
         column_sql = ", ".join(quote_identifier(column) for column in data_columns)
         value_sql = ", ".join(f":{column}" for column in data_columns)
         statement = text(
@@ -207,8 +301,8 @@ def write_rows(path: Path, rows: list[dict[str, str]], headers: list[str]) -> No
             statement,
             [
                 {
-                    "_nightfall_row_key": keys[index],
-                    "_nightfall_row_index": index,
+                    ROW_KEY_COLUMN: keys[index],
+                    ROW_INDEX_COLUMN: index,
                     **row,
                 }
                 for index, row in enumerate(clean_rows)
@@ -219,7 +313,14 @@ def write_rows(path: Path, rows: list[dict[str, str]], headers: list[str]) -> No
 def append_row(path: Path, row: dict[str, str], headers: list[str]) -> None:
     rows = read_rows(path)
     clean_headers = normalized_headers(headers)
-    rows.append({header: row.get(header, "") for header in clean_headers})
+    if ORGANISATION_ID_COLUMN not in clean_headers:
+        clean_headers.append(ORGANISATION_ID_COLUMN)
+    rows.append(
+        {
+            header: row.get(header, str(default_organisation_id()) if header == ORGANISATION_ID_COLUMN else "")
+            for header in clean_headers
+        }
+    )
     write_rows(path, rows, clean_headers)
 
 
@@ -229,7 +330,7 @@ def list_datasets() -> list[str]:
     return sorted(
         name
         for name in names
-        if name not in {LEGACY_ROW_TABLE, LEGACY_HEADER_TABLE}
+        if name not in SYSTEM_TABLES
         and not name.startswith("mysql")
     )
 
@@ -237,6 +338,7 @@ def list_datasets() -> list[str]:
 def read_headers(dataset: str) -> list[str]:
     with connection() as conn:
         if table_exists(conn, dataset):
+            ensure_dataset_table(conn, dataset, [])
             return user_columns(conn, dataset)
         return read_legacy_headers(conn, dataset)
 
@@ -298,4 +400,18 @@ def migrate_legacy_tables(*, drop_legacy: bool = False) -> list[tuple[str, int]]
         with connection() as conn:
             conn.execute(text(f"DROP TABLE IF EXISTS {quote_identifier(LEGACY_ROW_TABLE)}"))
             conn.execute(text(f"DROP TABLE IF EXISTS {quote_identifier(LEGACY_HEADER_TABLE)}"))
+    return migrated
+
+
+def migrate_current_tables() -> list[str]:
+    migrated: list[str] = []
+    with connection() as conn:
+        names = sorted(
+            name
+            for name in inspector(conn).get_table_names()
+            if name not in SYSTEM_TABLES and not name.startswith("mysql")
+        )
+        for dataset in names:
+            ensure_dataset_table(conn, dataset, [])
+            migrated.append(dataset)
     return migrated

@@ -51,11 +51,15 @@ class DatabaseStoreTest(unittest.TestCase):
         )
         rows = read_csv(path)
         self.assertEqual([row["lead_id"] for row in rows], ["lead-1", "lead-2"])
+        self.assertEqual([row["organisation_id"] for row in rows], ["1", "1"])
         self.assertFalse(path.exists())
 
         with db_store.connection() as conn:
+            self.assertTrue(db_store.table_exists(conn, "organisations"))
             self.assertTrue(db_store.table_exists(conn, "prospects"))
             self.assertIn("company_name", db_store.user_columns(conn, "prospects"))
+            self.assertIn("organisation_id", db_store.user_columns(conn, "prospects"))
+            self.assertFalse(any(column.startswith("_") for column in db_store.current_columns(conn, "prospects")))
             self.assertFalse(db_store.table_exists(conn, db_store.LEGACY_ROW_TABLE))
 
     def test_migrates_legacy_json_tables_to_real_tables(self) -> None:
@@ -99,10 +103,43 @@ class DatabaseStoreTest(unittest.TestCase):
         migrated = db_store.migrate_legacy_tables(drop_legacy=True)
         self.assertEqual(migrated, [("campaign_queue", 1)])
         rows = read_csv(Path(self.tmp.name) / "campaign_queue.csv")
-        self.assertEqual(rows, [{"lead_id": "lead-1", "email": "test@example.com"}])
+        self.assertEqual(
+            rows,
+            [{"lead_id": "lead-1", "email": "test@example.com", "organisation_id": "1"}],
+        )
         with db_store.connection() as conn:
             self.assertTrue(db_store.table_exists(conn, "campaign_queue"))
+            self.assertFalse(any(column.startswith("_") for column in db_store.current_columns(conn, "campaign_queue")))
             self.assertFalse(db_store.table_exists(conn, db_store.LEGACY_ROW_TABLE))
+
+    def test_migrates_existing_underscore_internal_columns(self) -> None:
+        create_engine, _, text = db_store.load_sqlalchemy()
+        engine = create_engine(os.environ["DATABASE_URL"], future=True)
+        with engine.begin() as conn:
+            conn.execute(text("""
+                CREATE TABLE prospects (
+                  _nightfall_row_key VARCHAR(191) NOT NULL PRIMARY KEY,
+                  _nightfall_row_index INTEGER NOT NULL,
+                  _nightfall_updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  lead_id TEXT NOT NULL
+                )
+            """))
+            conn.execute(
+                text("""
+                    INSERT INTO prospects (_nightfall_row_key, _nightfall_row_index, lead_id)
+                    VALUES ('lead-1', 0, 'lead-1')
+                """),
+            )
+
+        migrated = db_store.migrate_current_tables()
+        self.assertIn("prospects", migrated)
+        with db_store.connection() as conn:
+            columns = db_store.current_columns(conn, "prospects")
+            self.assertIn("nightfall_row_key", columns)
+            self.assertIn("nightfall_row_index", columns)
+            self.assertIn("nightfall_updated_at", columns)
+            self.assertIn("organisation_id", columns)
+            self.assertFalse(any(column.startswith("_") for column in columns))
 
 
 if __name__ == "__main__":
