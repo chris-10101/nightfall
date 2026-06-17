@@ -4,19 +4,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import argparse
 import csv
-import json
-
 from core import db_store
 from core.paths import data_dir
 
 
 def datasets() -> list[tuple[str, list[str]]]:
-    _, text = db_store.load_sqlalchemy()
-    with db_store.connection() as conn:
-        rows = conn.execute(
-            text(f"SELECT dataset, headers_json FROM {db_store.HEADER_TABLE} ORDER BY dataset ASC")
-        )
-        return [(row.dataset, json.loads(row.headers_json)) for row in rows]
+    return [(dataset, db_store.read_headers(dataset)) for dataset in db_store.list_datasets()]
 
 
 def write_csv(path: Path, rows: list[dict[str, str]], headers: list[str]) -> None:
