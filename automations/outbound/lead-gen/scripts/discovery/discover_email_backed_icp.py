@@ -113,6 +113,19 @@ def host(url: str) -> str:
     return urlparse(url).netloc.lower().removeprefix("www.")
 
 
+def email_root_domain(email: str) -> str:
+    if "@" not in email:
+        return ""
+    domain = email.rsplit("@", 1)[1].strip().lower().removeprefix("www.")
+    return root_domain(f"https://{domain}")
+
+
+def email_matches_website(email: str, website_url: str) -> bool:
+    email_domain = email_root_domain(email)
+    website_domain = root_domain(website_url)
+    return bool(email_domain and website_domain and email_domain == website_domain)
+
+
 def blocked_url(url: str) -> bool:
     parsed = urlparse(url)
     if parsed.scheme not in {"http", "https"}:
@@ -246,6 +259,13 @@ def add_directory_rows(
             continue
 
         if not email or email.lower() in existing_emails:
+            continue
+        if not email_matches_website(email, website_url):
+            print(
+                f"DIRECTORY_EMAIL_SKIP source=hri company={company_name!r} "
+                f"email_domain={email_root_domain(email)} website_domain={domain}",
+                flush=True,
+            )
             continue
 
         combined_text = f"{listing_title} {page_text}"
@@ -458,6 +478,8 @@ def main() -> None:
                 if not required_hits:
                     continue
                 if not email or email.lower() in existing_emails:
+                    continue
+                if not email_matches_website(email, url):
                     continue
 
                 positive_hits = hits(combined_text, profile.get("positive_terms", []))

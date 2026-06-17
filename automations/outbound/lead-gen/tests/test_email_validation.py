@@ -7,6 +7,7 @@ SCRIPT_DIR = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from enrichment.enrich_public_web import best_email, is_valid_business_email
+from discovery.discover_email_backed_icp import email_matches_website
 
 
 class EmailValidationTest(unittest.TestCase):
@@ -20,6 +21,11 @@ class EmailValidationTest(unittest.TestCase):
             best_email({"owner@gmail.com", "hello@acme-hr.co.uk"}),
             "hello@acme-hr.co.uk",
         )
+
+    def test_discovery_requires_email_domain_to_match_website_domain(self) -> None:
+        self.assertTrue(email_matches_website("hello@acme-hr.co.uk", "https://www.acme-hr.co.uk/contact"))
+        self.assertTrue(email_matches_website("hello@mail.acme-hr.co.uk", "https://acme-hr.co.uk"))
+        self.assertFalse(email_matches_website("micah@micahrich.com", "http://www.cmlpeoplesolutions.com"))
 
 
 if __name__ == "__main__":
