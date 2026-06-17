@@ -32,6 +32,7 @@ jobs:
           .venv/bin/python lead-gen/tests/test_agentic_orchestrator.py
           .venv/bin/python lead-gen/tests/test_campaign_variants.py
           .venv/bin/python lead-gen/tests/test_db_store.py
+          .venv/bin/python lead-gen/tests/test_tool_executor.py
           .venv/bin/python lead-gen/tests/test_unsubscribe_flow.py
           .venv/bin/python -m compileall -q lead-gen/scripts lead-gen/tests
           .venv/bin/python lead-gen/scripts/maintenance/validate_icp_profiles.py

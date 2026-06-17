@@ -36,7 +36,7 @@ def log_result(payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
 
-def execute(tool_name: str, argv: list[str], *, dry_run: bool = False) -> dict:
+def execute(tool_name: str, argv: list[str], *, dry_run: bool = False, raise_on_failure: bool = True) -> dict:
     init_sentry("tool-executor")
     validate_args(tool_name, argv)
     tool = require_tool(tool_name)
@@ -75,7 +75,7 @@ def execute(tool_name: str, argv: list[str], *, dry_run: bool = False) -> dict:
         }
     )
     log_result(payload)
-    if result.returncode != 0:
+    if result.returncode != 0 and raise_on_failure:
         raise SystemExit(result.returncode)
     return payload
 

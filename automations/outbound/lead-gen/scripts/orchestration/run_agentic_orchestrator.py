@@ -370,7 +370,12 @@ def run(
         if not should_run:
             plan.tool_status = skip_reason
             continue
-        result = execute_tool(plan.selected_tool, tool_args_to_argv(plan.tool_args), dry_run=dry_run_tools)
+        result = execute_tool(
+            plan.selected_tool,
+            tool_args_to_argv(plan.tool_args),
+            dry_run=dry_run_tools,
+            raise_on_failure=False,
+        )
         executed_keys.add(tool_key)
         tool_runs += 1
         plan.tool_status = result.get("status", "unknown")
