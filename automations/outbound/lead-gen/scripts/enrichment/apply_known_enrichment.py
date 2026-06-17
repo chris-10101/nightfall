@@ -2,10 +2,10 @@ from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import csv
 from datetime import date
 from pathlib import Path
 
+from core.csv_store import read_csv, write_csv_atomic
 from core.monitoring import init_sentry
 from core.paths import data_dir
 from imports.import_hr_consultancies import HEADERS
@@ -391,8 +391,7 @@ def score_priority(row: dict[str, str]) -> tuple[str, str]:
 
 def main() -> None:
     init_sentry("daily-enrichment-known-values")
-    with PROSPECTS_PATH.open(newline="", encoding="utf-8") as csv_file:
-        rows = list(csv.DictReader(csv_file))
+    rows = read_csv(PROSPECTS_PATH)
 
     updated_rows = 0
     updated_fields = 0
@@ -418,10 +417,7 @@ def main() -> None:
                 row["status"] = "enriched"
             updated_rows += 1
 
-    with PROSPECTS_PATH.open("w", newline="", encoding="utf-8") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=HEADERS)
-        writer.writeheader()
-        writer.writerows(rows)
+    write_csv_atomic(PROSPECTS_PATH, rows, HEADERS)
 
     print(f"Updated {updated_rows} rows; filled {updated_fields} fields.")
 

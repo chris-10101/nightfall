@@ -2,11 +2,11 @@ from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import csv
 import re
 from datetime import date
 from pathlib import Path
 
+from core.csv_store import read_csv, write_csv_atomic
 from core.monitoring import init_sentry
 from core.paths import data_dir
 from imports.import_hr_consultancies import HEADERS
@@ -283,8 +283,7 @@ def maybe_extract_name_from_notes(row: dict[str, str]) -> int:
 
 def main() -> None:
     init_sentry("daily-enrichment-decision-makers")
-    with PROSPECTS_PATH.open(newline="", encoding="utf-8") as csv_file:
-        rows = list(csv.DictReader(csv_file))
+    rows = read_csv(PROSPECTS_PATH)
 
     updated_rows = 0
     updated_fields = 0
@@ -323,10 +322,7 @@ def main() -> None:
             updated_rows += 1
             updated_fields += row_changed
 
-    with PROSPECTS_PATH.open("w", newline="", encoding="utf-8") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=HEADERS)
-        writer.writeheader()
-        writer.writerows(rows)
+    write_csv_atomic(PROSPECTS_PATH, rows, HEADERS)
 
     print(f"Updated {updated_rows} rows; filled/cleaned {updated_fields} fields; removed {cleaned_emails} bad emails.")
 
