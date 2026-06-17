@@ -89,7 +89,7 @@ def main() -> None:
         return
     batch_path = write_batch(rows)
     command = [
-        "python3",
+        sys.executable,
         "lead-gen/scripts/outreach/send_outreach_smtp.py",
         str(batch_path),
         "--allow-approved-automation",
