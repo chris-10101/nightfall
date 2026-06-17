@@ -39,6 +39,18 @@ class ToolExecutorTest(unittest.TestCase):
             allowed_args=set(),
         )
 
+
+    def python3_probe_tool(self) -> AgentTool:
+        return AgentTool(
+            name="python3_probe",
+            description="Checks interpreter rewrite",
+            command=["python3", "-c", "print('ok')"],
+            mutates_state=False,
+            requires_review=False,
+            can_send_email=False,
+            allowed_args=set(),
+        )
+
     def test_executes_registry_commands_from_outbound_root(self) -> None:
         original_require_tool = tool_executor.require_tool
         original_orchestration_dir = os.environ.get("VESRA_LEAD_GEN_ORCHESTRATION_DIR")
@@ -55,6 +67,25 @@ class ToolExecutorTest(unittest.TestCase):
                     os.environ["VESRA_LEAD_GEN_ORCHESTRATION_DIR"] = original_orchestration_dir
 
         self.assertEqual(payload["returncode"], 0)
+        self.assertEqual(payload["status"], "ok")
+
+
+    def test_python3_registry_commands_use_current_interpreter(self) -> None:
+        original_require_tool = tool_executor.require_tool
+        original_orchestration_dir = os.environ.get("VESRA_LEAD_GEN_ORCHESTRATION_DIR")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            os.environ["VESRA_LEAD_GEN_ORCHESTRATION_DIR"] = temp_dir
+            tool_executor.require_tool = lambda name: self.python3_probe_tool()
+            try:
+                payload = tool_executor.execute("python3_probe", [])
+            finally:
+                tool_executor.require_tool = original_require_tool
+                if original_orchestration_dir is None:
+                    os.environ.pop("VESRA_LEAD_GEN_ORCHESTRATION_DIR", None)
+                else:
+                    os.environ["VESRA_LEAD_GEN_ORCHESTRATION_DIR"] = original_orchestration_dir
+
+        self.assertEqual(payload["command"][0], sys.executable)
         self.assertEqual(payload["status"], "ok")
 
     def test_can_capture_failed_tool_without_exiting(self) -> None:

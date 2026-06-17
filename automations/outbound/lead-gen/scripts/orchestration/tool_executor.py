@@ -41,7 +41,10 @@ def execute(tool_name: str, argv: list[str], *, dry_run: bool = False, raise_on_
     validate_args(tool_name, argv)
     tool = require_tool(tool_name)
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    command = tool.command + argv
+    command = list(tool.command)
+    if command and command[0] == "python3":
+        command[0] = sys.executable
+    command = command + argv
     payload = {
         "run_id": run_id,
         "tool": tool.name,
