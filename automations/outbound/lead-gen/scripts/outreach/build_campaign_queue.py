@@ -3,8 +3,10 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import argparse
+import hashlib
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 from core.csv_store import read_csv, write_csv_atomic
 from core.eligibility_rules import (
@@ -32,6 +34,7 @@ QUEUE_HEADERS = [
     "lead_id",
     "icp_profile",
     "campaign_name",
+    "campaign_variant",
     "company_name",
     "company_domain",
     "segment",
@@ -181,8 +184,71 @@ def personalisation(row: dict[str, str]) -> tuple[str, str]:
     return detail, reason
 
 
+def campaign_variants(outreach: dict[str, Any]) -> list[dict[str, str]]:
+    variants = outreach.get("variants")
+    if isinstance(variants, list):
+        clean_variants = [
+            variant
+            for variant in variants
+            if isinstance(variant, dict)
+            and str(variant.get("id", "")).strip()
+            and str(variant.get("subject", "")).strip()
+            and str(variant.get("body_template", "")).strip()
+        ]
+        if clean_variants:
+            return clean_variants
+    if outreach.get("subject") and outreach.get("body_template"):
+        return [
+            {
+                "id": str(outreach.get("variant_id") or "a"),
+                "subject": str(outreach["subject"]),
+                "body_template": str(outreach["body_template"]),
+            }
+        ]
+    return []
+
+
+def choose_campaign_variant(row: dict[str, str], existing: dict[str, str], outreach: dict[str, Any]) -> str:
+    variants = campaign_variants(outreach)
+    if not variants:
+        return ""
+    variant_ids = {str(variant["id"]).strip().lower() for variant in variants}
+    existing_variant = existing.get("campaign_variant", "").strip().lower()
+    if existing_variant in variant_ids:
+        return existing_variant
+    row_variant = row.get("campaign_variant", "").strip().lower()
+    if row_variant in variant_ids:
+        return row_variant
+
+    key = (
+        row.get("company_domain", "")
+        or company_domain(row)
+        or row.get("company_name", "")
+        or row.get("lead_id", "")
+        or row.get("email", "")
+    ).strip().lower()
+    digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
+    return str(variants[int(digest[:8], 16) % len(variants)]["id"]).strip().lower()
+
+
+def selected_outreach_config(outreach: dict[str, Any], variant_id: str) -> dict[str, str]:
+    variants = campaign_variants(outreach)
+    if not variants:
+        return outreach
+    for variant in variants:
+        if str(variant["id"]).strip().lower() == variant_id.strip().lower():
+            return {
+                **{key: value for key, value in outreach.items() if key != "variants"},
+                **variant,
+            }
+    return {
+        **{key: value for key, value in outreach.items() if key != "variants"},
+        **variants[0],
+    }
+
+
 def draft_body(row: dict[str, str], detail: str) -> str:
-    outreach = outreach_config(row)
+    outreach = selected_outreach_config(outreach_config(row), row.get("campaign_variant", ""))
     name = first_name(row.get("decision_maker_name", ""))
     company = row["company_name"]
     if outreach.get("body_template"):
@@ -262,12 +328,18 @@ def build_queue_rows() -> list[dict[str, str]]:
         detail, reason = personalisation(prospect)
         profile_key, _ = profile_for_row(prospect)
         existing = existing_queue.get(prospect["lead_id"], {})
+        outreach = outreach_config(prospect)
+        variant_id = choose_campaign_variant(prospect, existing, outreach)
+        selected_outreach = selected_outreach_config(outreach, variant_id)
+        prospect_for_draft = dict(prospect)
+        prospect_for_draft["campaign_variant"] = variant_id
         row = {header: "" for header in QUEUE_HEADERS}
         row.update(
             {
                 "lead_id": prospect["lead_id"],
                 "icp_profile": profile_key,
                 "campaign_name": campaign_name(prospect, CAMPAIGN_NAME),
+                "campaign_variant": variant_id,
                 "company_name": prospect["company_name"],
                 "company_domain": company_domain(prospect),
                 "segment": prospect["segment"],
@@ -288,8 +360,8 @@ def build_queue_rows() -> list[dict[str, str]]:
                 "tier": prospect_tier,
                 "personalisation": detail,
                 "short_reason": reason,
-                "subject": outreach_config(prospect).get("subject", "Quick question"),
-                "draft_body": draft_body(prospect, detail),
+                "subject": selected_outreach.get("subject", "Quick question"),
+                "draft_body": draft_body(prospect_for_draft, detail),
                 "campaign_status": existing.get("campaign_status") or "ready_for_draft",
                 "gmail_draft_id": existing.get("gmail_draft_id", ""),
                 "gmail_message_id": existing.get("gmail_message_id", ""),
@@ -383,7 +455,7 @@ def main() -> None:
 
     write_csv(QUEUE_PATH, rows, QUEUE_HEADERS)
 
-    if not SUPPRESSION_PATH.exists():
+    if not read_csv(SUPPRESSION_PATH):
         write_csv(SUPPRESSION_PATH, [], ["email", "domain", "company_name", "reason", "added_at"])
 
     print(f"Wrote {len(rows)} queued contacts to {QUEUE_PATH}")

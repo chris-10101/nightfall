@@ -4,12 +4,16 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 
+from core import db_store
+
 
 LOCK_TIMEOUT_SECONDS = 30
 LOCK_POLL_SECONDS = 0.1
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
+    if db_store.database_enabled():
+        return db_store.read_rows(path)
     if not path.exists():
         return []
     with path.open(newline="", encoding="utf-8-sig") as csv_file:
@@ -17,6 +21,9 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 
 def write_csv_atomic(path: Path, rows: list[dict[str, str]], headers: list[str]) -> None:
+    if db_store.database_enabled():
+        db_store.write_rows(path, rows, headers)
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
     with file_lock(path):
         tmp_path = path.with_suffix(path.suffix + ".tmp")
@@ -28,6 +35,9 @@ def write_csv_atomic(path: Path, rows: list[dict[str, str]], headers: list[str])
 
 
 def append_csv_atomic(path: Path, row: dict[str, str], headers: list[str]) -> None:
+    if db_store.database_enabled():
+        db_store.append_row(path, row, headers)
+        return
     rows = read_csv(path)
     rows.append({header: row.get(header, "") for header in headers})
     write_csv_atomic(path, rows, headers)

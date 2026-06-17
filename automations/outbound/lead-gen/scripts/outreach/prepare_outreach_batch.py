@@ -23,7 +23,7 @@ def write_csv(path: Path, rows: list[dict[str, str]], headers: list[str]) -> Non
 
 
 def suppression_values() -> set[str]:
-    rows = read_csv(SUPPRESSION_PATH) if SUPPRESSION_PATH.exists() else []
+    rows = read_csv(SUPPRESSION_PATH)
     values = set()
     for row in rows:
         for key in ("email", "domain", "company_name"):
@@ -100,6 +100,7 @@ def main() -> None:
         "lead_id",
         "icp_profile",
         "campaign_name",
+        "campaign_variant",
         "company_name",
         "company_domain",
         "segment",

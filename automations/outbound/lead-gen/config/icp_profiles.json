@@ -136,10 +136,30 @@
       ]
     },
     "outreach": {
-      "subject": "Quick question",
+      "subject": "What HR software should we use?",
       "short_reason": "your HR advisory work",
       "detail": "works with businesses on HR and people support",
-      "body_template": "Hi {first_name},\n\nI came across {company_name} and noticed you provide HR support to SMEs.\n\nOne thing we have heard repeatedly from HR consultancies is that clients increasingly expect a software platform alongside advice, policies, and support.\n\nVesra helps HR consultancies offer a branded HR platform to clients without having to build or maintain software themselves.\n\nThe result is stronger client retention, a more complete service offering, and an additional recurring revenue stream.\n\nWould it be worth sending over a short overview?\n\nBest,\nChris"
+      "body_template": "Hi {first_name},\n\nWhen one of your clients asks, \"what HR software should we use?\", the easy answer is to recommend Breathe, BambooHR, Personio or another third-party platform.\n\nThat may solve the immediate problem, but it also means the software relationship sits with someone else.\n\nVesra is based in York, and we help HR consultancies offer clients a branded HR platform alongside their existing advice: your brand, your client relationship, no software build or maintenance required.\n\nThe short version is that you keep the software layer close to the consultancy, create a monthly recurring revenue line, and give clients a more modern HR experience between advice calls.\n\nI recorded a short partner overview here:\nhttps://vesra.io/white-label-partner-overview\n\nWorth a 15-minute conversation?\n\nBest,\nChris",
+      "variants": [
+        {
+          "id": "a",
+          "label": "Software relationship",
+          "subject": "What HR software should we use?",
+          "body_template": "Hi {first_name},\n\nWhen one of your clients asks, \"what HR software should we use?\", the easy answer is to recommend Breathe, BambooHR, Personio or another third-party platform.\n\nThat may solve the immediate problem, but it also means the software relationship sits with someone else.\n\nVesra is based in York, and we help HR consultancies offer clients a branded HR platform alongside their existing advice: your brand, your client relationship, no software build or maintenance required.\n\nThe short version is that you keep the software layer close to the consultancy, create a monthly recurring revenue line, and give clients a more modern HR experience between advice calls.\n\nI recorded a short partner overview here:\nhttps://vesra.io/white-label-partner-overview\n\nWorth a 15-minute conversation?\n\nBest,\nChris"
+        },
+        {
+          "id": "b",
+          "label": "Recurring revenue",
+          "subject": "Revenue without additional consulting hours",
+          "body_template": "Hi {first_name},\n\nMany HR consultancies are looking for ways to grow revenue without continually adding more consulting hours.\n\nOne approach we are seeing is consultancies offering a branded HR platform alongside their existing advisory services.\n\nRather than simply recommending third-party software, they provide the platform themselves and generate recurring monthly revenue from existing client relationships.\n\nThe goal is not to become a software company.\n\nIt is to create a more scalable service model while continuing to deliver the advice and support clients value.\n\nI recorded a short overview here:\nhttps://vesra.io/white-label-partner-overview\n\nIs this something you have considered before?\n\nBest,\nChris"
+        },
+        {
+          "id": "c",
+          "label": "Client retention",
+          "subject": "Becoming harder to replace",
+          "body_template": "Hi {first_name},\n\nClients increasingly expect more than advice alone.\n\nThey want software, self-service and a central place to manage HR activities.\n\nWhen that software relationship sits with another provider, they become embedded in the client organisation every day.\n\nVesra allows HR consultancies to offer clients a branded HR platform alongside their advisory services.\n\nThe result is stronger client retention and a deeper relationship with the organisations you support.\n\nI recorded a short overview here:\nhttps://vesra.io/white-label-partner-overview\n\nWorth taking a look?\n\nBest,\nChris"
+        }
+      ]
     }
   },
   "franchise": {

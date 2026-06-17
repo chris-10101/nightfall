@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 from core.csv_store import read_csv, write_csv_atomic
 from core.eligibility_rules import dedupe_keys, evaluate_prospect, is_uk_working_hours
 from core.monitoring import init_sentry
-from core.paths import config_dir, data_dir
+from core.paths import BASE_DIR, config_dir, data_dir
 from outreach.email_formatting import html_with_unsubscribe_link, plain_unsubscribe_footer, strip_existing_unsubscribe_text
 from outreach.unsubscribe_tokens import unsubscribe_url
 
@@ -74,6 +74,60 @@ def build_message(config: dict, row: dict[str, str]) -> EmailMessage:
     return message
 
 
+def first_name(full_name: str) -> str:
+    return full_name.split()[0] if full_name else "there"
+
+
+def int_value(value: str, default: int = 0) -> int:
+    try:
+        return int(value or default)
+    except (TypeError, ValueError):
+        return default
+
+
+def sequence_path(row: dict[str, str]) -> Path:
+    profile = (row.get("icp_profile") or "").strip()
+    if not profile:
+        return Path()
+    return BASE_DIR.parent / "tenants" / "vesra" / "campaigns" / profile / "sequence.json"
+
+
+def sequence_step(row: dict[str, str]) -> dict[str, str]:
+    path = sequence_path(row)
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8") as sequence_file:
+        sequence = json.load(sequence_file)
+    variant_id = (row.get("campaign_variant") or "a").strip().lower()
+    variants = sequence.get("variants", [])
+    for variant in variants:
+        if str(variant.get("id", "")).strip().lower() != variant_id:
+            continue
+        steps = [step for step in variant.get("steps", []) if isinstance(step, dict)]
+        index = int_value(row.get("send_count"), 0)
+        if 0 <= index < len(steps):
+            return steps[index]
+    return {}
+
+
+def materialize_sequence_row(row: dict[str, str]) -> dict[str, str]:
+    if int_value(row.get("send_count"), 0) <= 0:
+        return row
+    step = sequence_step(row)
+    if not step.get("subject") or not step.get("body_template"):
+        return row
+    rendered = dict(row)
+    rendered["subject"] = str(step["subject"])
+    rendered["draft_body"] = str(step["body_template"]).format(
+        first_name=first_name(row.get("decision_maker_name", "")),
+        company_name=row.get("company_name", ""),
+        detail=row.get("personalisation", ""),
+        city_region=row.get("city_region", ""),
+    )
+    rendered["campaign_step"] = str(step.get("day") or int_value(row.get("send_count"), 0) + 1)
+    return rendered
+
+
 def with_unsubscribe_text(config: dict, row: dict[str, str]) -> str:
     body = strip_existing_unsubscribe_text(row["draft_body"])
     unsubscribe_text = config.get(
@@ -94,7 +148,7 @@ def with_unsubscribe_text(config: dict, row: dict[str, str]) -> str:
 
 
 def suppression_values() -> set[str]:
-    rows = read_csv(SUPPRESSION_PATH) if SUPPRESSION_PATH.exists() else []
+    rows = read_csv(SUPPRESSION_PATH)
     values = set()
     for row in rows:
         for key in ("email", "domain", "company_name"):
@@ -174,6 +228,7 @@ def validate_batch_rows(config: dict, batch_rows: list[dict[str, str]], queue_ro
             raise SystemExit(f"Batch row is not present in campaign_queue.csv: {batch_row.get('lead_id')}")
         row = dict(queue_row)
         row.update({key: value for key, value in batch_row.items() if value})
+        row = materialize_sequence_row(row)
         keys = dedupe_keys(row)
         domain = row.get("company_domain", "").strip().lower() or keys["domain"]
         if keys["email"] in seen_batch_emails:
@@ -212,17 +267,22 @@ def mark_sent(batch_rows: list[dict[str, str]], dry_run: bool) -> None:
     if dry_run:
         return
     queue_rows = read_csv(QUEUE_PATH)
-    sent_ids = {row["lead_id"] for row in batch_rows}
+    sent_rows = {row["lead_id"]: row for row in batch_rows}
+    sent_ids = set(sent_rows)
     now_dt = datetime.now(timezone.utc)
     now = now_dt.isoformat()
     for row in queue_rows:
         if row["lead_id"] in sent_ids:
+            sent_row = sent_rows[row["lead_id"]]
             previous_send_count = int(row.get("send_count") or 0)
             new_send_count = previous_send_count + 1
             if previous_send_count > 0:
                 row["follow_up_count"] = str(int(row.get("follow_up_count") or 0) + 1)
             row["campaign_status"] = "sent"
             row["last_outbound_at"] = now
+            row["subject"] = sent_row.get("subject", row.get("subject", ""))
+            row["draft_body"] = sent_row.get("draft_body", row.get("draft_body", ""))
+            row["campaign_step"] = sent_row.get("campaign_step", row.get("campaign_step", ""))
             row["send_count"] = str(new_send_count)
             row["next_action"] = "monitor_reply"
             row["next_action_due_at"] = next_follow_up_at(now_dt, new_send_count)

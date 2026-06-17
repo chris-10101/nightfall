@@ -26,10 +26,15 @@ jobs:
         working-directory: automations/outbound
         run: |
           python3 --version
-          python3 lead-gen/tests/test_agentic_orchestrator.py
-          python3 lead-gen/tests/test_unsubscribe_flow.py
-          python3 -m compileall -q lead-gen/scripts lead-gen/tests
-          python3 lead-gen/scripts/maintenance/validate_icp_profiles.py
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -e .
+          .venv/bin/python lead-gen/tests/test_agentic_orchestrator.py
+          .venv/bin/python lead-gen/tests/test_campaign_variants.py
+          .venv/bin/python lead-gen/tests/test_db_store.py
+          .venv/bin/python lead-gen/tests/test_unsubscribe_flow.py
+          .venv/bin/python -m compileall -q lead-gen/scripts lead-gen/tests
+          .venv/bin/python lead-gen/scripts/maintenance/validate_icp_profiles.py
 
       - name: Configure SSH
         env:
@@ -67,15 +72,20 @@ jobs:
             cp deploy/systemd/vesra-*.service /etc/systemd/system/
             cp deploy/systemd/vesra-*.timer /etc/systemd/system/
             rm -rf /opt/nightfall/automations/vesra-outbound
+            python3 -m venv .venv
+            .venv/bin/python -m pip install --upgrade pip
+            .venv/bin/python -m pip install -e .
             systemctl daemon-reload
             systemctl enable vesra-outbound-webhook.service vesra-daily-discovery.timer vesra-daily-enrichment.timer vesra-daily-orchestrator.timer vesra-agent-send-approved.timer
             set -a
             . /etc/vesra/outbound.env
             set +a
-            python3 lead-gen/tests/test_agentic_orchestrator.py
-            python3 lead-gen/tests/test_unsubscribe_flow.py
-            python3 -m compileall -q lead-gen/scripts lead-gen/tests
-            python3 lead-gen/scripts/maintenance/validate_icp_profiles.py
+            .venv/bin/python lead-gen/tests/test_agentic_orchestrator.py
+            .venv/bin/python lead-gen/tests/test_campaign_variants.py
+            .venv/bin/python lead-gen/tests/test_db_store.py
+            .venv/bin/python lead-gen/tests/test_unsubscribe_flow.py
+            .venv/bin/python -m compileall -q lead-gen/scripts lead-gen/tests
+            .venv/bin/python lead-gen/scripts/maintenance/validate_icp_profiles.py
             systemctl restart vesra-outbound-webhook.service
             sleep 1
             systemctl is-active vesra-outbound-webhook.service

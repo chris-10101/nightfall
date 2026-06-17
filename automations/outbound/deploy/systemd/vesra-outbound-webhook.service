@@ -7,7 +7,7 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=/opt/nightfall/automations/outbound
 EnvironmentFile=/etc/vesra/outbound.env
-ExecStart=/usr/bin/python3 lead-gen/scripts/outreach/unsubscribe_server.py --host 127.0.0.1 --port 8088
+ExecStart=/opt/nightfall/automations/outbound/.venv/bin/python lead-gen/scripts/outreach/unsubscribe_server.py --host 127.0.0.1 --port 8088
 Restart=always
 RestartSec=5
 

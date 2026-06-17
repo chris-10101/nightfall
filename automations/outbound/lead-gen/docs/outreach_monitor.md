@@ -9,7 +9,7 @@ Monitor replies and unsubscribe requests for Vesra partner outreach, update loca
 - `lead-gen/data/prospects.csv`: master prospect list.
 - `lead-gen/data/campaign_queue.csv`: outbound queue and campaign state.
 - `lead-gen/data/suppression.csv`: opt-outs, not-fit contacts, and blocked domains.
-- `lead-gen/docs/outreach_templates.md`: first-touch and follow-up templates.
+- `lead-gen/docs/outreach_templates/`: first-touch and follow-up templates split by ICP.
 
 ## Automated Capture
 

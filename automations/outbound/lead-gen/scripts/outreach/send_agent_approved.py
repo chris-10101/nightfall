@@ -22,6 +22,7 @@ SEND_BATCH_HEADERS = [
     "lead_id",
     "icp_profile",
     "campaign_name",
+    "campaign_variant",
     "company_name",
     "company_domain",
     "segment",

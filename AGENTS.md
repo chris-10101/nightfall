@@ -89,7 +89,7 @@ So the deployed Vesra code path is:
 Live data and secrets are stored outside the Git checkout:
 
 ```text
-/var/lib/vesra/lead-gen-data      # live CSV data/state
+/var/lib/vesra/lead-gen-data      # legacy CSV import/export data/state
 /var/lib/vesra/reports            # generated reports
 /var/lib/vesra/outreach-batches   # generated outreach batches
 /var/lib/vesra/test-campaign      # internal test campaign state
@@ -108,6 +108,8 @@ VESRA_LEAD_GEN_BATCH_DIR=/var/lib/vesra/outreach-batches
 VESRA_LEAD_GEN_TEST_DIR=/var/lib/vesra/test-campaign
 VESRA_LEAD_GEN_ORCHESTRATION_DIR=/var/lib/vesra/orchestration-runs
 VESRA_LEAD_GEN_KB_DIR=/opt/nightfall/automations/outbound/lead-gen/docs
+NIGHTFALL_STORAGE_BACKEND=database
+DATABASE_URL=<mysql+pymysql database url>
 VESRA_TEST_RECIPIENT=<internal test recipient>
 VESRA_AUTO_SEND_ENABLED=false
 VESRA_AGENT_SEND_LIMIT=5
@@ -120,16 +122,35 @@ SENTRY_ENVIRONMENT=production
 PYTHONDONTWRITEBYTECODE=1
 ```
 
-Do not commit prospect CSVs, campaign queues, suppression lists, SMTP credentials, Mailgun tokens, Hunter keys, or generated campaign batches.
+Do not commit database URLs, prospect CSV exports, campaign queues,
+suppression lists, SMTP credentials, Mailgun tokens, Hunter keys, or generated
+campaign batches.
+
+When production uses MySQL, initialise/import with:
+
+```bash
+cd /opt/nightfall/automations/outbound
+.venv/bin/python lead-gen/scripts/maintenance/init_database.py
+.venv/bin/python lead-gen/scripts/maintenance/import_csv_state_to_database.py --data-dir /var/lib/vesra/lead-gen-data
+```
+
+Use CSV exports for review/backups only:
+
+```bash
+.venv/bin/python lead-gen/scripts/maintenance/export_database_state_to_csv.py --output-dir /var/lib/vesra/lead-gen-data-export
+```
 
 ### Deploy Checks
 
 The workflow runs these checks locally in GitHub Actions and again on the droplet before restarting the webhook:
 
 ```bash
-python3 lead-gen/tests/test_unsubscribe_flow.py
-python3 -m compileall -q lead-gen/scripts lead-gen/tests
-python3 lead-gen/scripts/maintenance/validate_icp_profiles.py
+.venv/bin/python lead-gen/tests/test_agentic_orchestrator.py
+.venv/bin/python lead-gen/tests/test_campaign_variants.py
+.venv/bin/python lead-gen/tests/test_db_store.py
+.venv/bin/python lead-gen/tests/test_unsubscribe_flow.py
+.venv/bin/python -m compileall -q lead-gen/scripts lead-gen/tests
+.venv/bin/python lead-gen/scripts/maintenance/validate_icp_profiles.py
 ```
 
 After syncing, it restarts:

@@ -1,24 +1,104 @@
 {
   "campaign_name": "vesra_hr_partner_program_v1",
-  "subject": "Quick question",
+  "subject": "What HR software should we use?",
   "day_1": {
-    "subject": "Quick question",
+    "subject": "What HR software should we use?",
     "short_reason": "your HR advisory work",
     "detail": "works with businesses on HR and people support",
-    "body_template": "Hi {first_name},\n\nI came across {company_name} and noticed you provide HR support to SMEs.\n\nOne thing we have heard repeatedly from HR consultancies is that clients increasingly expect a software platform alongside advice, policies, and support.\n\nVesra helps HR consultancies offer a branded HR platform to clients without having to build or maintain software themselves.\n\nThe result is stronger client retention, a more complete service offering, and an additional recurring revenue stream.\n\nWould it be worth sending over a short overview?\n\nBest,\nChris"
+    "body_template": "Hi {first_name},\n\nWhen one of your clients asks, \"what HR software should we use?\", the easy answer is to recommend Breathe, BambooHR, Personio or another third-party platform.\n\nThat may solve the immediate problem, but it also means the software relationship sits with someone else.\n\nVesra is based in York, and we help HR consultancies offer clients a branded HR platform alongside their existing advice: your brand, your client relationship, no software build or maintenance required.\n\nThe short version is that you keep the software layer close to the consultancy, create a monthly recurring revenue line, and give clients a more modern HR experience between advice calls.\n\nI recorded a short partner overview here:\nhttps://vesra.io/white-label-partner-overview\n\nWorth a 15-minute conversation?\n\nBest,\nChris"
   },
   "follow_ups": [
     {
       "day": 4,
-      "subject": "Re: Quick question"
+      "subject": "Re: What HR software should we use?"
     },
     {
       "day": 7,
-      "subject": "Helping HR consultancies grow recurring revenue"
+      "subject": "10 retained clients"
     },
     {
       "day": 14,
-      "subject": "Should I close your file"
+      "subject": "Closing this one out"
+    }
+  ],
+  "variants": [
+    {
+      "id": "a",
+      "label": "Software relationship",
+      "steps": [
+        {
+          "day": 1,
+          "subject": "What HR software should we use?",
+          "body_template": "Hi {first_name},\n\nWhen one of your clients asks, \"what HR software should we use?\", the easy answer is to recommend Breathe, BambooHR, Personio or another third-party platform.\n\nThat may solve the immediate problem, but it also means the software relationship sits with someone else.\n\nVesra is based in York, and we help HR consultancies offer clients a branded HR platform alongside their existing advice: your brand, your client relationship, no software build or maintenance required.\n\nThe short version is that you keep the software layer close to the consultancy, create a monthly recurring revenue line, and give clients a more modern HR experience between advice calls.\n\nI recorded a short partner overview here:\nhttps://vesra.io/white-label-partner-overview\n\nWorth a 15-minute conversation?\n\nBest,\nChris"
+        },
+        {
+          "day": 4,
+          "subject": "Re: What HR software should we use?",
+          "body_template": "Hi {first_name},\n\nQuick follow-up, but rather than just nudging you, this is the bit I think matters.\n\nThe HR consultancies that tend to see the strongest fit with Vesra are usually already being asked by clients what HR software they should use.\n\nMost firms answer that by recommending a third-party platform. Useful for the client, but commercially it gives away the software opportunity.\n\nVesra gives you a way to offer the platform under your own brand, while keeping the advisory relationship at the centre.\n\nHappy to send a one-pager if easier than a call.\n\nBest,\nChris"
+        },
+        {
+          "day": 7,
+          "subject": "10 retained clients",
+          "body_template": "Hi {first_name},\n\nOne reason HR consultancies look at Vesra is that it changes the shape of the client relationship.\n\nIf 10 retained clients paid a monthly fee for a branded HR platform alongside your consultancy service, that starts to become a meaningful recurring revenue line.\n\nThe point is not to replace the advice. It is to give clients the software layer they increasingly expect while keeping your consultancy as the trusted partner.\n\nNo big software build. No product team. Just a different way to package the expertise and client relationships you already have.\n\nIs it worth 15 minutes?\n\nBest,\nChris"
+        },
+        {
+          "day": 14,
+          "subject": "Closing this one out",
+          "body_template": "Hi {first_name},\n\nI have reached out a few times and have not heard back, so I will leave this here unless it is relevant.\n\nThe reason I got in touch is that Vesra is built for HR consultancies that want to offer clients a branded HR platform without becoming a software company themselves.\n\nIf that is something you are likely to explore later, just reply \"not yet\" and I can check back another time.\n\nIf it is not relevant, no problem at all.\n\nP.S. The overview is short if useful:\nhttps://vesra.io/white-label-partner-overview\n\nBest,\nChris"
+        }
+      ]
+    },
+    {
+      "id": "b",
+      "label": "Recurring revenue",
+      "steps": [
+        {
+          "day": 1,
+          "subject": "Revenue without additional consulting hours",
+          "body_template": "Hi {first_name},\n\nMany HR consultancies are looking for ways to grow revenue without continually adding more consulting hours.\n\nOne approach we are seeing is consultancies offering a branded HR platform alongside their existing advisory services.\n\nRather than simply recommending third-party software, they provide the platform themselves and generate recurring monthly revenue from existing client relationships.\n\nThe goal is not to become a software company.\n\nIt is to create a more scalable service model while continuing to deliver the advice and support clients value.\n\nI recorded a short overview here:\nhttps://vesra.io/white-label-partner-overview\n\nIs this something you have considered before?\n\nBest,\nChris"
+        },
+        {
+          "day": 4,
+          "subject": "Re: Revenue without additional consulting hours",
+          "body_template": "Hi {first_name},\n\nA quick follow-up.\n\nMost HR consultancies grow by winning more clients or increasing consulting hours.\n\nThe firms looking at Vesra are often exploring a third option: creating recurring software revenue from clients they already support.\n\nIt is a simple idea, but it can materially change the economics of a consultancy business.\n\nHappy to send more information if useful.\n\nBest,\nChris"
+        },
+        {
+          "day": 7,
+          "subject": "A different way to grow",
+          "body_template": "Hi {first_name},\n\nOne thing we have noticed is that many consultancy owners want growth, but not necessarily more delivery work.\n\nOffering a branded HR platform allows consultancies to increase revenue per client while continuing to focus on advice and support.\n\nNo software development.\n\nNo technical team.\n\nJust another revenue stream built on relationships you already have.\n\nWorth a conversation?\n\nBest,\nChris"
+        },
+        {
+          "day": 14,
+          "subject": "Close the loop?",
+          "body_template": "Hi {first_name},\n\nI appreciate this may not be a priority right now.\n\nThe reason I reached out is that we are helping HR consultancies create recurring software revenue alongside their advisory services.\n\nIf that is not something you are exploring, no problem at all.\n\nJust let me know and I will close the file.\n\nBest,\nChris"
+        }
+      ]
+    },
+    {
+      "id": "c",
+      "label": "Client retention",
+      "steps": [
+        {
+          "day": 1,
+          "subject": "Becoming harder to replace",
+          "body_template": "Hi {first_name},\n\nClients increasingly expect more than advice alone.\n\nThey want software, self-service and a central place to manage HR activities.\n\nWhen that software relationship sits with another provider, they become embedded in the client organisation every day.\n\nVesra allows HR consultancies to offer clients a branded HR platform alongside their advisory services.\n\nThe result is stronger client retention and a deeper relationship with the organisations you support.\n\nI recorded a short overview here:\nhttps://vesra.io/white-label-partner-overview\n\nWorth taking a look?\n\nBest,\nChris"
+        },
+        {
+          "day": 4,
+          "subject": "Re: Becoming harder to replace",
+          "body_template": "Hi {first_name},\n\nA quick follow-up.\n\nMany HR consultancies do fantastic advisory work, but the software layer often sits elsewhere.\n\nThe challenge is that clients interact with the software every day and the consultancy far less frequently.\n\nThat is one reason some firms are looking to offer both.\n\nHappy to share more if useful.\n\nBest,\nChris"
+        },
+        {
+          "day": 7,
+          "subject": "More than advice",
+          "body_template": "Hi {first_name},\n\nThe consultancies that seem best positioned for the next few years are combining expertise with technology.\n\nAdvice remains incredibly valuable, but clients increasingly expect a platform alongside the service.\n\nVesra helps consultancies deliver both under their own brand.\n\nNo software team required.\n\nWorth exploring?\n\nBest,\nChris"
+        },
+        {
+          "day": 14,
+          "subject": "Final follow-up",
+          "body_template": "Hi {first_name},\n\nI have reached out a few times because we are helping HR consultancies strengthen client retention through a branded HR platform.\n\nIf it is not relevant, no problem at all.\n\nIf it is something you would like to revisit later, simply reply \"not yet\" and I will leave it there for now.\n\nBest,\nChris"
+        }
+      ]
     }
   ]
 }

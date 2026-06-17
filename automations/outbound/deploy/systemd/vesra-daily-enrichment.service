@@ -8,6 +8,6 @@ Type=oneshot
 WorkingDirectory=/opt/nightfall/automations/outbound
 EnvironmentFile=/etc/vesra/outbound.env
 ExecStartPre=/usr/bin/mkdir -p /var/log/vesra
-ExecStart=/bin/bash -lc 'set -euo pipefail; python3 lead-gen/scripts/enrichment/apply_known_enrichment.py; python3 lead-gen/scripts/enrichment/enrich_decision_makers.py; python3 lead-gen/scripts/enrichment/enrich_public_web.py --limit "${VESRA_DAILY_ENRICH_LIMIT:-50}" --max-pages "${VESRA_DAILY_ENRICH_MAX_PAGES:-2}" --checkpoint'
+ExecStart=/bin/bash -lc 'set -euo pipefail; .venv/bin/python lead-gen/scripts/enrichment/apply_known_enrichment.py; .venv/bin/python lead-gen/scripts/enrichment/enrich_decision_makers.py; .venv/bin/python lead-gen/scripts/enrichment/enrich_public_web.py --limit "${VESRA_DAILY_ENRICH_LIMIT:-50}" --max-pages "${VESRA_DAILY_ENRICH_MAX_PAGES:-2}" --checkpoint'
 StandardOutput=append:/var/log/vesra/daily-enrichment.log
 StandardError=append:/var/log/vesra/daily-enrichment.log

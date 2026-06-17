@@ -9,6 +9,6 @@ WorkingDirectory=/opt/nightfall/automations/outbound
 Environment=NIGHTFALL_OUTBOUND_TENANT=%i
 EnvironmentFile=-/etc/nightfall/outbound/%i.env
 ExecStartPre=/usr/bin/mkdir -p /var/log/nightfall/outbound
-ExecStart=/bin/bash -lc 'set -euo pipefail; python3 tools/run_tenant_tool.py --tenant "%i" discover --max-new "${OUTBOUND_DAILY_DISCOVERY_LIMIT:-20}" --max-pages "${OUTBOUND_DAILY_DISCOVERY_MAX_PAGES:-2}" --checkpoint'
+ExecStart=/bin/bash -lc 'set -euo pipefail; .venv/bin/python tools/run_tenant_tool.py --tenant "%i" discover --max-new "${OUTBOUND_DAILY_DISCOVERY_LIMIT:-20}" --max-pages "${OUTBOUND_DAILY_DISCOVERY_MAX_PAGES:-2}" --checkpoint'
 StandardOutput=append:/var/log/nightfall/outbound/%i-discovery.log
 StandardError=append:/var/log/nightfall/outbound/%i-discovery.log

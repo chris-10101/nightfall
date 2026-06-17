@@ -10,17 +10,17 @@ ICP profile explicitly enables them.
 ## Folder Layout
 
 - `config/` - sender, ICP, and test campaign configuration examples.
-- `data/` - master prospect data, campaign queue, suppression list, and generated draft CSVs.
+- `data/` - local development/export state. Production state should live in MySQL.
 - `docs/` - ICP, outreach templates, partner KB, monitor spec, and daily pipeline notes.
 - `tests/` - test campaign runbook and state file.
 - `outreach/batches/` - reviewed outreach batches ready for dry-run or sending.
 
 ## Key Files
 
-- `data/prospects.csv` - master source-backed prospect list and the primary source of truth.
-- `data/campaign_queue.csv` - generated contactable outbound queue.
-- `data/suppression.csv` - opt-outs, no-thanks, and blocked contacts/domains.
-- `data/reply_events.csv` - append-only reply and unsubscribe event log, created when replies are processed.
+- `data/prospects.csv` - local/export copy of source-backed prospect state.
+- `data/campaign_queue.csv` - local/export copy of contactable outbound queue state.
+- `data/suppression.csv` - local/export copy of opt-outs, no-thanks, and blocked contacts/domains.
+- `data/reply_events.csv` - local/export copy of reply and unsubscribe event logs.
 - `config/outbound_config.example.json` - sender/SMTP config template.
 - `config/test_campaign_config.example.json` - four-step test campaign template.
 - `docs/vesra_partner_kb.md` - source content for dynamic replies and campaign language.
@@ -32,6 +32,15 @@ Build the outbound queue from the current CSVs:
 
 ```bash
 python lead-gen/scripts/outreach/build_campaign_queue.py
+```
+
+Production database mode:
+
+```bash
+export NIGHTFALL_STORAGE_BACKEND=database
+export DATABASE_URL="<mysql+pymysql connection string>"
+python lead-gen/scripts/maintenance/init_database.py
+python lead-gen/scripts/maintenance/import_csv_state_to_database.py --data-dir /var/lib/vesra/lead-gen-data
 ```
 
 Prepare a reviewed batch:

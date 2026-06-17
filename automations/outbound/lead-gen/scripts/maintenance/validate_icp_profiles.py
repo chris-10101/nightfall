@@ -48,6 +48,12 @@ REQUIRED_OUTREACH_KEYS = [
     "body_template",
 ]
 
+REQUIRED_VARIANT_KEYS = [
+    "id",
+    "subject",
+    "body_template",
+]
+
 
 def require_keys(name: str, value: dict, keys: list[str]) -> list[str]:
     return [f"{name}: missing {key}" for key in keys if key not in value]
@@ -62,6 +68,11 @@ def main() -> None:
         outreach = profile.get("outreach", {})
         errors.extend(require_keys(f"{key}.discovery", discovery, REQUIRED_DISCOVERY_KEYS))
         errors.extend(require_keys(f"{key}.outreach", outreach, REQUIRED_OUTREACH_KEYS))
+        for index, variant in enumerate(outreach.get("variants", []), start=1):
+            if not isinstance(variant, dict):
+                errors.append(f"{key}.outreach.variants[{index}]: must be an object")
+                continue
+            errors.extend(require_keys(f"{key}.outreach.variants[{index}]", variant, REQUIRED_VARIANT_KEYS))
         if not profile.get("segments"):
             errors.append(f"{key}: segments must not be empty")
         if not profile.get("required_terms_any"):
