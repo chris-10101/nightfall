@@ -80,12 +80,14 @@ jobs:
             set -a
             . /etc/vesra/outbound.env
             set +a
+            export NIGHTFALL_STORAGE_BACKEND=csv
             .venv/bin/python lead-gen/tests/test_agentic_orchestrator.py
             .venv/bin/python lead-gen/tests/test_campaign_variants.py
             .venv/bin/python lead-gen/tests/test_db_store.py
             .venv/bin/python lead-gen/tests/test_unsubscribe_flow.py
             .venv/bin/python -m compileall -q lead-gen/scripts lead-gen/tests
             .venv/bin/python lead-gen/scripts/maintenance/validate_icp_profiles.py
+            unset NIGHTFALL_STORAGE_BACKEND
             systemctl restart vesra-outbound-webhook.service
             sleep 1
             systemctl is-active vesra-outbound-webhook.service
