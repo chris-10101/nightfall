@@ -15,6 +15,7 @@ from urllib.parse import unquote, urljoin, urlparse
 from urllib.request import Request, urlopen
 
 from core.csv_store import read_csv, write_csv_atomic
+from core.eligibility_rules import FREE_PERSONAL_DOMAINS
 from core.monitoring import init_sentry
 from core.paths import data_dir
 from imports.import_hr_consultancies import HEADERS
@@ -140,6 +141,8 @@ def is_valid_business_email(email: str) -> bool:
     local_part, domain = email.lower().split("@", 1)
     domain_parts = domain.split(".")
     if domain in BLOCKED_EMAIL_DOMAINS:
+        return False
+    if domain in FREE_PERSONAL_DOMAINS:
         return False
     if domain_parts[-1] in BLOCKED_EMAIL_TLDS:
         return False
