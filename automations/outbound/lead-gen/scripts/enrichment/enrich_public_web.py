@@ -43,9 +43,11 @@ GENERIC_EMAIL_PREFIXES = {
     "support",
 }
 BLOCKED_EMAIL_DOMAINS = {
+    "example.com",
+    "godaddy.com",
+    "onmicrosoft.com",
     "sentry.wixpress.com",
     "wixpress.com",
-    "example.com",
 }
 BLOCKED_EMAIL_TLDS = {
     "gif",
