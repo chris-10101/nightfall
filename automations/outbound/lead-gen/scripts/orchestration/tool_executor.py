@@ -59,7 +59,7 @@ def execute(tool_name: str, argv: list[str], *, dry_run: bool = False, raise_on_
 
     result = subprocess.run(
         command,
-        cwd=Path(__file__).resolve().parents[2],
+        cwd=Path(__file__).resolve().parents[3],
         env=os.environ.copy(),
         text=True,
         capture_output=True,
