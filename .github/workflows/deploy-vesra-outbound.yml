@@ -89,7 +89,14 @@ jobs:
             .venv/bin/python lead-gen/scripts/maintenance/validate_icp_profiles.py
             unset NIGHTFALL_STORAGE_BACKEND
             systemctl restart vesra-outbound-webhook.service
-            sleep 1
             systemctl is-active vesra-outbound-webhook.service
-            curl -fsS http://127.0.0.1:8088/health
+            for i in $(seq 1 10); do
+              if curl -fsS http://127.0.0.1:8088/health; then
+                exit 0
+              fi
+              sleep 1
+            done
+            systemctl status vesra-outbound-webhook.service --no-pager -l
+            journalctl -u vesra-outbound-webhook.service -n 80 --no-pager
+            exit 1
           '
