@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from core.csv_store import read_csv, write_csv_atomic
+from core.db_store import database_enabled, dataset_name
 from core.eligibility_rules import (
     company_key,
     dedupe_keys,
@@ -442,15 +443,22 @@ def build_queue_rows() -> list[dict[str, str]]:
     return rows
 
 
+def storage_label(path: Path) -> str:
+    if database_enabled():
+        return f"{dataset_name(path)} table"
+    return str(path)
+
+
 def main() -> None:
     init_sentry("build-campaign-queue")
-    parser = argparse.ArgumentParser(description="Build campaign_queue.csv from eligible prospects.")
-    parser.add_argument("--dry-run", action="store_true", help="Print the row count without writing campaign_queue.csv.")
+    parser = argparse.ArgumentParser(description="Build campaign queue from eligible prospects.")
+    parser.add_argument("--dry-run", action="store_true", help="Print the row count without writing campaign queue state.")
     args = parser.parse_args()
 
     rows = build_queue_rows()
+    target = storage_label(QUEUE_PATH)
     if args.dry_run:
-        print(f"DRY RUN: would write {len(rows)} queued contacts to {QUEUE_PATH}")
+        print(f"DRY RUN: would write {len(rows)} queued contacts to {target}")
         return
 
     write_csv(QUEUE_PATH, rows, QUEUE_HEADERS)
@@ -458,7 +466,7 @@ def main() -> None:
     if not read_csv(SUPPRESSION_PATH):
         write_csv(SUPPRESSION_PATH, [], ["email", "domain", "company_name", "reason", "added_at"])
 
-    print(f"Wrote {len(rows)} queued contacts to {QUEUE_PATH}")
+    print(f"Wrote {len(rows)} queued contacts to {target}")
     print(f"Generated on {TODAY}")
 
 
