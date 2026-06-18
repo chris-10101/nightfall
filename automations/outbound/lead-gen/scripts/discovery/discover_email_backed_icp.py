@@ -25,6 +25,7 @@ PROSPECTS_PATH = data_dir() / "prospects.csv"
 TODAY = date.today().isoformat()
 EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
 HRI_DIRECTORY_SITEMAP_URL = "https://hrindependents.co.uk/directory-listing-sitemap.xml"
+OUTPUT_AVAILABLE = True
 
 BLOCKED_DOMAIN_PARTS = {
     "192.com",
@@ -65,6 +66,25 @@ EXTERNAL_LINK_BLOCKLIST = {
     "twitter.com",
     "x.com",
 }
+
+
+class NullOutput:
+    def write(self, value: str) -> int:
+        return len(value)
+
+    def flush(self) -> None:
+        return None
+
+
+def emit(message: str) -> None:
+    global OUTPUT_AVAILABLE
+    if not OUTPUT_AVAILABLE:
+        return
+    try:
+        print(message, flush=True)
+    except BrokenPipeError:
+        OUTPUT_AVAILABLE = False
+        sys.stdout = NullOutput()
 
 
 class LinkAndTitleParser(HTMLParser):
@@ -230,7 +250,7 @@ def add_directory_rows(
     try:
         listing_urls = hri_listing_urls(timeout)
     except Exception as exc:
-        print(f"DIRECTORY_SKIP source=hri error={type(exc).__name__}", flush=True)
+        emit(f"DIRECTORY_SKIP source=hri error={type(exc).__name__}")
         return 0
 
     for listing_url in listing_urls:
@@ -239,7 +259,7 @@ def add_directory_rows(
         try:
             website_url, listing_title = listing_external_site(listing_url, timeout)
         except Exception as exc:
-            print(f"DIRECTORY_LISTING_SKIP source=hri url={listing_url} error={type(exc).__name__}", flush=True)
+            emit(f"DIRECTORY_LISTING_SKIP source=hri url={listing_url} error={type(exc).__name__}")
             continue
         if not website_url:
             continue
@@ -255,16 +275,15 @@ def add_directory_rows(
         try:
             page_text, email, email_source_url = fetch_site_context(website_url, max_pages, timeout)
         except Exception as exc:
-            print(f"DIRECTORY_SITE_SKIP source=hri company={company_name!r} error={type(exc).__name__}", flush=True)
+            emit(f"DIRECTORY_SITE_SKIP source=hri company={company_name!r} error={type(exc).__name__}")
             continue
 
         if not email or email.lower() in existing_emails:
             continue
         if not email_matches_website(email, website_url):
-            print(
+            emit(
                 f"DIRECTORY_EMAIL_SKIP source=hri company={company_name!r} "
-                f"email_domain={email_root_domain(email)} website_domain={domain}",
-                flush=True,
+                f"email_domain={email_root_domain(email)} website_domain={domain}"
             )
             continue
 
@@ -309,7 +328,7 @@ def add_directory_rows(
         existing_emails.add(email.lower())
         existing_names.add(normalize(company_name))
         added += 1
-        print(f"DIRECTORY_ADD source=hri profile={profile_key} {added}: {company_name} | {email} | {website_url}", flush=True)
+        emit(f"DIRECTORY_ADD source=hri profile={profile_key} {added}: {company_name} | {email} | {website_url}")
         if checkpoint:
             write_csv_atomic(PROSPECTS_PATH, rows, HEADERS)
 
@@ -433,7 +452,7 @@ def main() -> None:
         )
         added += directory_added
         if directory_added:
-            print(f"DIRECTORY_SUMMARY profile={profile_key} added={directory_added}", flush=True)
+            emit(f"DIRECTORY_SUMMARY profile={profile_key} added={directory_added}")
         for query, geo, geo_type in expand_queries(profile):
             if added >= args.max_new:
                 break
@@ -441,7 +460,7 @@ def main() -> None:
             try:
                 results = fetch_rss(query, timeout=args.timeout)
             except Exception as exc:
-                print(f"SKIP profile={profile_key} query={query!r} error={type(exc).__name__}", flush=True)
+                emit(f"SKIP profile={profile_key} query={query!r} error={type(exc).__name__}")
                 time.sleep(args.sleep)
                 continue
 
@@ -515,18 +534,15 @@ def main() -> None:
                 existing_emails.add(email.lower())
                 existing_names.add(normalize(company_name))
                 added += 1
-                print(f"ADD profile={profile_key} {added}: {company_name} | {email} | {url}", flush=True)
+                emit(f"ADD profile={profile_key} {added}: {company_name} | {email} | {url}")
                 if args.checkpoint:
                     write_csv_atomic(PROSPECTS_PATH, rows, HEADERS)
 
-            print(
-                f"QUERY profile={profile_key} searched={searched} considered={considered} added={added}: {query}",
-                flush=True,
-            )
+            emit(f"QUERY profile={profile_key} searched={searched} considered={considered} added={added}: {query}")
             time.sleep(args.sleep)
 
     write_csv_atomic(PROSPECTS_PATH, rows, HEADERS)
-    print(f"Added {added} email-backed rows. Total rows: {len(rows)}")
+    emit(f"Added {added} email-backed rows. Total rows: {len(rows)}")
 
 
 if __name__ == "__main__":
