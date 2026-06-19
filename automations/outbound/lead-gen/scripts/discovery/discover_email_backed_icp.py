@@ -79,6 +79,33 @@ EXTERNAL_LINK_BLOCKLIST = {
     "x.com",
 }
 
+BLOCKED_RESULT_PATH_PARTS = {
+    "/article",
+    "/blog",
+    "/case-stud",
+    "/events",
+    "/guide",
+    "/insight",
+    "/news",
+    "/post",
+    "/resource",
+    "/whitepaper",
+}
+
+GENERIC_COMPANY_NAMES = {
+    "hr",
+    "hr 101",
+    "hr advice",
+    "hr consultant",
+    "hr consultancy",
+    "hr consulting",
+    "hr services",
+    "hr support",
+    "human resources",
+    "outsourced hr",
+    "retained hr support",
+}
+
 
 class NullOutput:
     def write(self, value: str) -> int:
@@ -172,6 +199,9 @@ def blocked_url(url: str) -> bool:
         return True
     if parsed.path.lower().endswith((".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx")):
         return True
+    normalized_path = parsed.path.lower().rstrip("/")
+    if any(part in normalized_path for part in BLOCKED_RESULT_PATH_PARTS):
+        return True
     domain_text = f"{host(url)} {root_domain(url)}"
     return any(part in domain_text for part in BLOCKED_DOMAIN_PARTS)
 
@@ -197,6 +227,15 @@ def name_from_title(title: str, url: str) -> str:
         return title[:90]
     domain = root_domain(url).split(".", 1)[0]
     return re.sub(r"[-_]+", " ", domain).title()
+
+
+def is_generic_company_name(company_name: str) -> bool:
+    normalized = normalize(company_name)
+    if normalized in GENERIC_COMPANY_NAMES:
+        return True
+    if normalized.startswith(("what is ", "how to ", "guide to ", "introduction to ")):
+        return True
+    return False
 
 
 def name_from_hri_title(title: str, fallback_url: str) -> str:
@@ -929,6 +968,8 @@ def main() -> None:
                     continue
 
                 company_name = name_from_title(result.get("title", ""), url)
+                if is_generic_company_name(company_name):
+                    continue
                 if normalize(company_name) in existing_names:
                     continue
 

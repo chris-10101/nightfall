@@ -9,11 +9,13 @@ sys.path.insert(0, str(SCRIPT_DIR))
 from enrichment.enrich_public_web import best_email, is_valid_business_email
 from discovery import discover_email_backed_icp
 from discovery.discover_email_backed_icp import (
+    blocked_url,
     brand_match_score,
     email_matches_website,
     franchiseinfo_profile_urls,
     has_franchise_site_signal,
     hr_dept_licensee_urls,
+    is_generic_company_name,
     name_from_franchiseinfo_title,
     name_from_hr_dept_title,
 )
@@ -46,6 +48,14 @@ class EmailValidationTest(unittest.TestCase):
         self.assertTrue(email_matches_website("hello@acme-hr.co.uk", "https://www.acme-hr.co.uk/contact"))
         self.assertTrue(email_matches_website("hello@mail.acme-hr.co.uk", "https://acme-hr.co.uk"))
         self.assertFalse(email_matches_website("micah@micahrich.com", "http://www.cmlpeoplesolutions.com"))
+
+    def test_discovery_blocks_low_intent_result_urls_and_generic_names(self) -> None:
+        self.assertTrue(blocked_url("https://example.com/resource/blogs/what-is-hr/"))
+        self.assertTrue(blocked_url("https://example.com/news/hr-consultancy-guide/"))
+        self.assertFalse(blocked_url("https://example.com/contact"))
+        self.assertTrue(is_generic_company_name("HR 101"))
+        self.assertTrue(is_generic_company_name("HR Consultant"))
+        self.assertFalse(is_generic_company_name("Acme HR Ltd"))
 
     def test_discovery_emit_ignores_broken_pipe(self) -> None:
         original_stdout = sys.stdout
