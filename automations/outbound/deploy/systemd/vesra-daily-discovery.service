@@ -8,6 +8,6 @@ Type=oneshot
 WorkingDirectory=/opt/nightfall/automations/outbound
 EnvironmentFile=/etc/vesra/outbound.env
 ExecStartPre=/usr/bin/mkdir -p /var/log/vesra
-ExecStart=/bin/bash -lc 'set -euo pipefail; .venv/bin/python lead-gen/scripts/discovery/discover_email_backed_icp.py --profile hr_consultancy_partner --max-new "${VESRA_DAILY_DISCOVERY_HR_LIMIT:-10}" --max-pages "${VESRA_DAILY_DISCOVERY_MAX_PAGES:-2}" --checkpoint; .venv/bin/python lead-gen/scripts/discovery/discover_email_backed_icp.py --profile franchise --max-new "${VESRA_DAILY_DISCOVERY_FRANCHISE_LIMIT:-10}" --max-pages "${VESRA_DAILY_DISCOVERY_MAX_PAGES:-2}" --checkpoint'
+ExecStart=/bin/bash -lc 'set -euo pipefail; .venv/bin/python lead-gen/scripts/discovery/discover_email_backed_icp.py --profile hr_consultancy_partner --max-new "${VESRA_DAILY_DISCOVERY_HR_LIMIT:-10}" --max-pages "${VESRA_DAILY_DISCOVERY_MAX_PAGES:-2}" --max-source-candidates "${VESRA_DAILY_DISCOVERY_HR_SOURCE_CANDIDATES:-250}" --max-queries-per-profile "${VESRA_DAILY_DISCOVERY_HR_QUERY_LIMIT:-120}" --checkpoint; .venv/bin/python lead-gen/scripts/discovery/discover_email_backed_icp.py --profile franchise --max-new "${VESRA_DAILY_DISCOVERY_FRANCHISE_LIMIT:-10}" --max-pages "${VESRA_DAILY_DISCOVERY_MAX_PAGES:-2}" --max-source-candidates "${VESRA_DAILY_DISCOVERY_FRANCHISE_SOURCE_CANDIDATES:-500}" --max-queries-per-profile "${VESRA_DAILY_DISCOVERY_FRANCHISE_QUERY_LIMIT:-24}" --checkpoint'
 StandardOutput=append:/var/log/vesra/daily-discovery.log
 StandardError=append:/var/log/vesra/daily-discovery.log

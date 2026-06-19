@@ -18,6 +18,7 @@ from discovery.discover_email_backed_icp import (
     is_generic_company_name,
     name_from_franchiseinfo_title,
     name_from_hr_dept_title,
+    site_home_url,
 )
 
 
@@ -88,6 +89,7 @@ class EmailValidationTest(unittest.TestCase):
     def test_franchiseinfo_profile_urls_extracts_unique_profile_pages(self) -> None:
         original_fetch_text = discover_email_backed_icp.fetch_text
         original_categories = discover_email_backed_icp.FRANCHISEINFO_CATEGORY_URLS
+        original_sitemaps = discover_email_backed_icp.FRANCHISEINFO_SITEMAP_URLS
         html = """
         <a href="https://www.franchiseinfo.co.uk/franchise/bluebird-care/">Bluebird</a>
         <a href="https://www.franchiseinfo.co.uk/franchise/bluebird-care/request-information/">Request</a>
@@ -95,6 +97,7 @@ class EmailValidationTest(unittest.TestCase):
         <a href="https://www.franchiseinfo.co.uk/franchise/bluebird-care/">Duplicate</a>
         """
         try:
+            discover_email_backed_icp.FRANCHISEINFO_SITEMAP_URLS = []
             discover_email_backed_icp.FRANCHISEINFO_CATEGORY_URLS = ["https://www.franchiseinfo.co.uk/full-franchise-directory/care-franchises/"]
             discover_email_backed_icp.fetch_text = lambda url, timeout: html
             self.assertEqual(
@@ -107,6 +110,31 @@ class EmailValidationTest(unittest.TestCase):
         finally:
             discover_email_backed_icp.fetch_text = original_fetch_text
             discover_email_backed_icp.FRANCHISEINFO_CATEGORY_URLS = original_categories
+            discover_email_backed_icp.FRANCHISEINFO_SITEMAP_URLS = original_sitemaps
+
+    def test_franchiseinfo_profile_urls_extracts_sitemap_profiles(self) -> None:
+        original_fetch_text = discover_email_backed_icp.fetch_text
+        original_categories = discover_email_backed_icp.FRANCHISEINFO_CATEGORY_URLS
+        original_sitemaps = discover_email_backed_icp.FRANCHISEINFO_SITEMAP_URLS
+        sitemap = """
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url><loc>https://www.franchiseinfo.co.uk/franchise/bluebird-care/</loc></url>
+          <url><loc>https://www.franchiseinfo.co.uk/franchise/bluebird-care/request-information/</loc></url>
+          <url><loc>https://www.franchiseinfo.co.uk/advice/not-a-profile/</loc></url>
+        </urlset>
+        """
+        try:
+            discover_email_backed_icp.FRANCHISEINFO_SITEMAP_URLS = ["https://www.franchiseinfo.co.uk/franchise-sitemap.xml"]
+            discover_email_backed_icp.FRANCHISEINFO_CATEGORY_URLS = []
+            discover_email_backed_icp.fetch_text = lambda url, timeout: sitemap
+            self.assertEqual(
+                franchiseinfo_profile_urls(5),
+                ["https://www.franchiseinfo.co.uk/franchise/bluebird-care/"],
+            )
+        finally:
+            discover_email_backed_icp.fetch_text = original_fetch_text
+            discover_email_backed_icp.FRANCHISEINFO_CATEGORY_URLS = original_categories
+            discover_email_backed_icp.FRANCHISEINFO_SITEMAP_URLS = original_sitemaps
 
     def test_source_name_and_franchise_quality_helpers(self) -> None:
         self.assertEqual(
@@ -122,6 +150,7 @@ class EmailValidationTest(unittest.TestCase):
             brand_match_score("Bluebird Care", "https://www.bluebirdcare.co.uk/franchise", "Bluebird Care franchise"),
             1,
         )
+        self.assertEqual(site_home_url("https://example.com/franchise/contact?x=1"), "https://example.com/")
 
 
 if __name__ == "__main__":

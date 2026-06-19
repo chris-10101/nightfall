@@ -315,10 +315,41 @@ FRANCHISEINFO_CATEGORY_URLS = [
     "https://www.franchiseinfo.co.uk/full-franchise-directory/property-franchises/",
 ]
 
+FRANCHISEINFO_SITEMAP_URLS = [
+    "https://www.franchiseinfo.co.uk/franchise-sitemap.xml",
+    "https://www.franchiseinfo.co.uk/franchise-sitemap2.xml",
+]
+
+
+def site_home_url(url: str) -> str:
+    parsed = urlparse(url)
+    if not parsed.scheme or not parsed.netloc:
+        return url
+    return f"{parsed.scheme}://{parsed.netloc}/"
+
+
+def add_franchise_profile_url(profile_urls: list[str], seen: set[str], url: str) -> None:
+    absolute = url.split("?", 1)[0].rstrip("/") + "/"
+    if not re.match(r"https://www\.franchiseinfo\.co\.uk/franchise/[^/]+/$", absolute):
+        return
+    if absolute.endswith("/request-information/"):
+        return
+    if absolute in seen:
+        return
+    seen.add(absolute)
+    profile_urls.append(absolute)
+
 
 def franchiseinfo_profile_urls(timeout: int) -> list[str]:
     profile_urls: list[str] = []
     seen: set[str] = set()
+    for sitemap_url in FRANCHISEINFO_SITEMAP_URLS:
+        try:
+            for loc in sitemap_locs(sitemap_url, timeout):
+                add_franchise_profile_url(profile_urls, seen, loc)
+        except Exception as exc:
+            emit(f"DIRECTORY_SITEMAP_SKIP source=franchiseinfo url={sitemap_url} error={type(exc).__name__}")
+            continue
     for category_url in FRANCHISEINFO_CATEGORY_URLS:
         try:
             html = fetch_text(category_url, timeout)
@@ -328,15 +359,7 @@ def franchiseinfo_profile_urls(timeout: int) -> list[str]:
         parser = LinkAndTitleParser()
         parser.feed(html)
         for href in parser.links:
-            absolute = urljoin(category_url, href).split("?", 1)[0].rstrip("/") + "/"
-            if not re.match(r"https://www\.franchiseinfo\.co\.uk/franchise/[^/]+/$", absolute):
-                continue
-            if absolute.endswith("/request-information/"):
-                continue
-            if absolute in seen:
-                continue
-            seen.add(absolute)
-            profile_urls.append(absolute)
+            add_franchise_profile_url(profile_urls, seen, urljoin(category_url, href))
     return profile_urls
 
 
@@ -724,6 +747,7 @@ def add_franchiseinfo_rows(
         official_url = resolve_franchise_official_site(company_name, timeout)
         if not official_url:
             continue
+        official_url = site_home_url(official_url)
         domain = root_domain(official_url)
         if domain in existing_domains:
             continue
