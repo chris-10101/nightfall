@@ -405,6 +405,12 @@ FRANCHISE_SITE_SIGNALS = [
     "network",
 ]
 
+FRANCHISEINFO_SUPPLIER_TITLE_TERMS = {
+    "advisor",
+    "franchise services",
+    "supplier",
+}
+
 
 def brand_tokens(company_name: str) -> list[str]:
     tokens = []
@@ -433,6 +439,11 @@ def brand_domain_match_score(company_name: str, url: str) -> int:
 def has_franchise_site_signal(text: str) -> bool:
     normalized_text = normalize(text)
     return any(signal in normalized_text for signal in FRANCHISE_SITE_SIGNALS)
+
+
+def is_franchiseinfo_supplier_profile(title: str) -> bool:
+    normalized_title = normalize(title)
+    return any(term in normalized_title for term in FRANCHISEINFO_SUPPLIER_TITLE_TERMS)
 
 
 def resolve_franchise_official_site(company_name: str, timeout: int) -> str:
@@ -748,6 +759,8 @@ def add_franchiseinfo_rows(
             profile_html = fetch_text(profile_url, timeout)
             parser = LinkAndTitleParser()
             parser.feed(profile_html)
+            if is_franchiseinfo_supplier_profile(parser.title):
+                continue
             company_name = name_from_franchiseinfo_title(parser.title, profile_url)
         except Exception as exc:
             emit(f"DIRECTORY_PROFILE_SKIP source=franchiseinfo url={profile_url} error={type(exc).__name__}")

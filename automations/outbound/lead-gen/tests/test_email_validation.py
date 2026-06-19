@@ -16,6 +16,7 @@ from discovery.discover_email_backed_icp import (
     franchiseinfo_profile_urls,
     has_franchise_site_signal,
     hr_dept_licensee_urls,
+    is_franchiseinfo_supplier_profile,
     is_generic_company_name,
     name_from_franchiseinfo_title,
     name_from_hr_dept_title,
@@ -58,6 +59,9 @@ class EmailValidationTest(unittest.TestCase):
         self.assertTrue(is_generic_company_name("HR 101"))
         self.assertTrue(is_generic_company_name("HR Consultant"))
         self.assertFalse(is_generic_company_name("Acme HR Ltd"))
+        self.assertTrue(is_franchiseinfo_supplier_profile("Novuna Business Finance | Advisor | FranchiseInfo"))
+        self.assertTrue(is_franchiseinfo_supplier_profile("AnswerConnect | Franchise Services | FranchiseInfo"))
+        self.assertFalse(is_franchiseinfo_supplier_profile("Bluebird Care Franchise | FranchiseInfo"))
 
     def test_discovery_emit_ignores_broken_pipe(self) -> None:
         original_stdout = sys.stdout
