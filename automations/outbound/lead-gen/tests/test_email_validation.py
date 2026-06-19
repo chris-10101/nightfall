@@ -8,7 +8,15 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from enrichment.enrich_public_web import best_email, is_valid_business_email
 from discovery import discover_email_backed_icp
-from discovery.discover_email_backed_icp import email_matches_website
+from discovery.discover_email_backed_icp import (
+    brand_match_score,
+    email_matches_website,
+    franchiseinfo_profile_urls,
+    has_franchise_site_signal,
+    hr_dept_licensee_urls,
+    name_from_franchiseinfo_title,
+    name_from_hr_dept_title,
+)
 
 
 class BrokenPipeStdout:
@@ -48,6 +56,59 @@ class EmailValidationTest(unittest.TestCase):
         finally:
             sys.stdout = original_stdout
             discover_email_backed_icp.OUTPUT_AVAILABLE = original_output_available
+
+    def test_hr_dept_licensee_sitemap_filters_to_location_roots(self) -> None:
+        original_fetch_text = discover_email_backed_icp.fetch_text
+        xml = """
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url><loc>https://www.hrdept.co.uk/leeds-south</loc></url>
+          <url><loc>https://www.hrdept.co.uk/leeds-south/providing-hr-support-to-leeds-businesses</loc></url>
+          <url><loc>https://www.hrdept.co.uk/contact-us</loc></url>
+        </urlset>
+        """
+        try:
+            discover_email_backed_icp.fetch_text = lambda url, timeout: xml
+            self.assertEqual(hr_dept_licensee_urls(5), ["https://www.hrdept.co.uk/leeds-south"])
+        finally:
+            discover_email_backed_icp.fetch_text = original_fetch_text
+
+    def test_franchiseinfo_profile_urls_extracts_unique_profile_pages(self) -> None:
+        original_fetch_text = discover_email_backed_icp.fetch_text
+        original_categories = discover_email_backed_icp.FRANCHISEINFO_CATEGORY_URLS
+        html = """
+        <a href="https://www.franchiseinfo.co.uk/franchise/bluebird-care/">Bluebird</a>
+        <a href="https://www.franchiseinfo.co.uk/franchise/bluebird-care/request-information/">Request</a>
+        <a href="/franchise/caremark/">Caremark</a>
+        <a href="https://www.franchiseinfo.co.uk/franchise/bluebird-care/">Duplicate</a>
+        """
+        try:
+            discover_email_backed_icp.FRANCHISEINFO_CATEGORY_URLS = ["https://www.franchiseinfo.co.uk/full-franchise-directory/care-franchises/"]
+            discover_email_backed_icp.fetch_text = lambda url, timeout: html
+            self.assertEqual(
+                franchiseinfo_profile_urls(5),
+                [
+                    "https://www.franchiseinfo.co.uk/franchise/bluebird-care/",
+                    "https://www.franchiseinfo.co.uk/franchise/caremark/",
+                ],
+            )
+        finally:
+            discover_email_backed_icp.fetch_text = original_fetch_text
+            discover_email_backed_icp.FRANCHISEINFO_CATEGORY_URLS = original_categories
+
+    def test_source_name_and_franchise_quality_helpers(self) -> None:
+        self.assertEqual(
+            name_from_hr_dept_title("Leeds South | HR Dept", "https://www.hrdept.co.uk/leeds-south"),
+            "The HR Dept Leeds South",
+        )
+        self.assertEqual(
+            name_from_franchiseinfo_title("Bluebird Care Franchise | FranchiseInfo", "https://example.com"),
+            "Bluebird Care Franchise",
+        )
+        self.assertTrue(has_franchise_site_signal("We support franchisees across our UK network."))
+        self.assertGreaterEqual(
+            brand_match_score("Bluebird Care", "https://www.bluebirdcare.co.uk/franchise", "Bluebird Care franchise"),
+            1,
+        )
 
 
 if __name__ == "__main__":
