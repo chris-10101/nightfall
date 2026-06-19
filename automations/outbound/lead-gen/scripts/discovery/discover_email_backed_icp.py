@@ -827,23 +827,8 @@ def main() -> None:
     considered = 0
 
     for profile_key, profile in profiles.items():
+        profile_added = 0
         segment = profile.get("segments", [""])[0]
-        directory_added = add_directory_rows(
-            profile_key=profile_key,
-            profile=profile,
-            rows=rows,
-            existing_ids=existing_ids,
-            existing_domains=existing_domains,
-            existing_emails=existing_emails,
-            existing_names=existing_names,
-            max_new=args.max_new - added,
-            max_pages=args.max_pages,
-            timeout=args.timeout,
-            checkpoint=args.checkpoint,
-        )
-        added += directory_added
-        if directory_added:
-            emit(f"DIRECTORY_SUMMARY profile={profile_key} added={directory_added}")
         hr_dept_added = add_hr_dept_rows(
             profile_key=profile_key,
             profile=profile,
@@ -853,14 +838,32 @@ def main() -> None:
             existing_emails=existing_emails,
             existing_names=existing_names,
             existing_source_urls=existing_source_urls,
-            max_new=args.max_new - added,
+            max_new=args.max_new - profile_added,
             max_pages=args.max_pages,
             timeout=args.timeout,
             checkpoint=args.checkpoint,
         )
+        profile_added += hr_dept_added
         added += hr_dept_added
         if hr_dept_added:
             emit(f"DIRECTORY_SUMMARY profile={profile_key} source=hrdept added={hr_dept_added}")
+        directory_added = add_directory_rows(
+            profile_key=profile_key,
+            profile=profile,
+            rows=rows,
+            existing_ids=existing_ids,
+            existing_domains=existing_domains,
+            existing_emails=existing_emails,
+            existing_names=existing_names,
+            max_new=args.max_new - profile_added,
+            max_pages=args.max_pages,
+            timeout=args.timeout,
+            checkpoint=args.checkpoint,
+        )
+        profile_added += directory_added
+        added += directory_added
+        if directory_added:
+            emit(f"DIRECTORY_SUMMARY profile={profile_key} source=hri added={directory_added}")
         franchiseinfo_added = add_franchiseinfo_rows(
             profile_key=profile_key,
             profile=profile,
@@ -870,16 +873,17 @@ def main() -> None:
             existing_emails=existing_emails,
             existing_names=existing_names,
             existing_source_urls=existing_source_urls,
-            max_new=args.max_new - added,
+            max_new=args.max_new - profile_added,
             max_pages=args.max_pages,
             timeout=args.timeout,
             checkpoint=args.checkpoint,
         )
+        profile_added += franchiseinfo_added
         added += franchiseinfo_added
         if franchiseinfo_added:
             emit(f"DIRECTORY_SUMMARY profile={profile_key} source=franchiseinfo added={franchiseinfo_added}")
         for query, geo, geo_type in expand_queries(profile):
-            if added >= args.max_new:
+            if profile_added >= args.max_new:
                 break
             searched += 1
             try:
@@ -890,7 +894,7 @@ def main() -> None:
                 continue
 
             for result in results:
-                if added >= args.max_new:
+                if profile_added >= args.max_new:
                     break
                 url = result.get("url", "")
                 if blocked_url(url):
@@ -958,6 +962,7 @@ def main() -> None:
                 existing_domains.add(domain)
                 existing_emails.add(email.lower())
                 existing_names.add(normalize(company_name))
+                profile_added += 1
                 added += 1
                 emit(f"ADD profile={profile_key} {added}: {company_name} | {email} | {url}")
                 if args.checkpoint:
