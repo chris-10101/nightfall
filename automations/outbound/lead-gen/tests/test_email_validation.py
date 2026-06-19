@@ -10,6 +10,7 @@ from enrichment.enrich_public_web import best_email, is_valid_business_email
 from discovery import discover_email_backed_icp
 from discovery.discover_email_backed_icp import (
     blocked_url,
+    brand_domain_match_score,
     brand_match_score,
     email_matches_website,
     franchiseinfo_profile_urls,
@@ -150,6 +151,8 @@ class EmailValidationTest(unittest.TestCase):
             brand_match_score("Bluebird Care", "https://www.bluebirdcare.co.uk/franchise", "Bluebird Care franchise"),
             1,
         )
+        self.assertEqual(brand_domain_match_score("Centre VR", "https://writingexplained.org/"), 0)
+        self.assertGreaterEqual(brand_domain_match_score("Bluebird Care", "https://www.bluebirdcare.co.uk/"), 1)
         self.assertEqual(site_home_url("https://example.com/franchise/contact?x=1"), "https://example.com/")
 
 

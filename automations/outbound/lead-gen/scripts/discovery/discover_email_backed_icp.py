@@ -422,6 +422,14 @@ def brand_match_score(company_name: str, url: str, text: str = "") -> int:
     return sum(1 for token in tokens if token in haystack)
 
 
+def brand_domain_match_score(company_name: str, url: str) -> int:
+    tokens = brand_tokens(company_name)
+    if not tokens:
+        return 0
+    domain_text = normalize(urlparse(url).netloc)
+    return sum(1 for token in tokens if token in domain_text)
+
+
 def has_franchise_site_signal(text: str) -> bool:
     normalized_text = normalize(text)
     return any(signal in normalized_text for signal in FRANCHISE_SITE_SIGNALS)
@@ -452,6 +460,9 @@ def resolve_franchise_official_site(company_name: str, timeout: int) -> str:
                 continue
             result_text = f"{result.get('title', '')} {result.get('description', '')}"
             score = brand_match_score(company_name, url, result_text)
+            domain_score = brand_domain_match_score(company_name, url)
+            if domain_score < 1:
+                continue
             if len(tokens) > 1 and score < 2:
                 continue
             if len(tokens) == 1 and score < 1:
