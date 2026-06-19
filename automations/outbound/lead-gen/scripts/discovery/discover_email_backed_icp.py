@@ -463,6 +463,7 @@ def add_directory_rows(
     existing_names: set[str],
     max_new: int,
     max_pages: int,
+    max_candidates: int,
     timeout: int,
     checkpoint: bool,
 ) -> int:
@@ -477,7 +478,9 @@ def add_directory_rows(
         emit(f"DIRECTORY_SKIP source=hri error={type(exc).__name__}")
         return 0
 
-    for listing_url in listing_urls:
+    for candidate_index, listing_url in enumerate(listing_urls):
+        if candidate_index >= max_candidates:
+            break
         if added >= max_new:
             break
         try:
@@ -563,6 +566,7 @@ def add_hr_dept_rows(
     existing_source_urls: set[str],
     max_new: int,
     max_pages: int,
+    max_candidates: int,
     timeout: int,
     checkpoint: bool,
 ) -> int:
@@ -577,7 +581,9 @@ def add_hr_dept_rows(
 
     added = 0
     segment = profile.get("segments", [""])[0]
-    for url in urls:
+    for candidate_index, url in enumerate(urls):
+        if candidate_index >= max_candidates:
+            break
         if added >= max_new:
             break
         if url in existing_source_urls:
@@ -643,6 +649,7 @@ def add_franchiseinfo_rows(
     existing_source_urls: set[str],
     max_new: int,
     max_pages: int,
+    max_candidates: int,
     timeout: int,
     checkpoint: bool,
 ) -> int:
@@ -657,7 +664,9 @@ def add_franchiseinfo_rows(
 
     added = 0
     segment = profile.get("segments", ["Franchise"])[0]
-    for profile_url in profile_urls:
+    for candidate_index, profile_url in enumerate(profile_urls):
+        if candidate_index >= max_candidates:
+            break
         if added >= max_new:
             break
         if profile_url in existing_source_urls:
@@ -804,6 +813,8 @@ def main() -> None:
     parser.add_argument("--profile", action="append", help="ICP profile key to run. Defaults to all active profiles.")
     parser.add_argument("--max-new", type=int, default=20)
     parser.add_argument("--max-pages", type=int, default=5)
+    parser.add_argument("--max-source-candidates", type=int, default=40)
+    parser.add_argument("--max-queries-per-profile", type=int, default=24)
     parser.add_argument("--timeout", type=int, default=10)
     parser.add_argument("--sleep", type=float, default=0.3)
     parser.add_argument("--checkpoint", action="store_true")
@@ -828,6 +839,7 @@ def main() -> None:
 
     for profile_key, profile in profiles.items():
         profile_added = 0
+        profile_searched = 0
         segment = profile.get("segments", [""])[0]
         hr_dept_added = add_hr_dept_rows(
             profile_key=profile_key,
@@ -840,6 +852,7 @@ def main() -> None:
             existing_source_urls=existing_source_urls,
             max_new=args.max_new - profile_added,
             max_pages=args.max_pages,
+            max_candidates=args.max_source_candidates,
             timeout=args.timeout,
             checkpoint=args.checkpoint,
         )
@@ -857,6 +870,7 @@ def main() -> None:
             existing_names=existing_names,
             max_new=args.max_new - profile_added,
             max_pages=args.max_pages,
+            max_candidates=args.max_source_candidates,
             timeout=args.timeout,
             checkpoint=args.checkpoint,
         )
@@ -875,6 +889,7 @@ def main() -> None:
             existing_source_urls=existing_source_urls,
             max_new=args.max_new - profile_added,
             max_pages=args.max_pages,
+            max_candidates=args.max_source_candidates,
             timeout=args.timeout,
             checkpoint=args.checkpoint,
         )
@@ -885,7 +900,11 @@ def main() -> None:
         for query, geo, geo_type in expand_queries(profile):
             if profile_added >= args.max_new:
                 break
+            if profile_searched >= args.max_queries_per_profile:
+                emit(f"QUERY_LIMIT profile={profile_key} searched={profile_searched} added={profile_added}")
+                break
             searched += 1
+            profile_searched += 1
             try:
                 results = fetch_rss(query, timeout=args.timeout)
             except Exception as exc:
