@@ -315,10 +315,7 @@ FRANCHISEINFO_CATEGORY_URLS = [
     "https://www.franchiseinfo.co.uk/full-franchise-directory/property-franchises/",
 ]
 
-FRANCHISEINFO_SITEMAP_URLS = [
-    "https://www.franchiseinfo.co.uk/franchise-sitemap.xml",
-    "https://www.franchiseinfo.co.uk/franchise-sitemap2.xml",
-]
+FRANCHISEINFO_SITEMAP_URLS: list[str] = []
 
 
 def site_home_url(url: str) -> str:
