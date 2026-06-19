@@ -146,7 +146,7 @@ def is_valid_business_email(email: str) -> bool:
         return False
     if domain_parts[-1] in BLOCKED_EMAIL_TLDS:
         return False
-    if len(local_part) > 40 and re.fullmatch(r"[a-f0-9]+", local_part):
+    if len(local_part) >= 24 and re.fullmatch(r"[a-f0-9]+", local_part):
         return False
     if len(local_part) >= 24 and re.fullmatch(r"[a-f0-9]+", local_part) and "bookwithme" in domain:
         return False

@@ -33,6 +33,9 @@ class EmailValidationTest(unittest.TestCase):
         self.assertFalse(is_valid_business_email("owner@outlook.com"))
         self.assertFalse(is_valid_business_email("owner@yahoo.co.uk"))
 
+    def test_rejects_hash_like_email_local_parts(self) -> None:
+        self.assertFalse(is_valid_business_email("22286b56dbaf4d27aa4f1bed2e2eed06@hrdept.co.uk"))
+
     def test_best_email_prefers_valid_business_domain(self) -> None:
         self.assertEqual(
             best_email({"owner@gmail.com", "hello@acme-hr.co.uk"}),
